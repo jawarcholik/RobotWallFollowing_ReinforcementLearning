@@ -30,3 +30,6 @@
 *.exe
 *.out
 *.app
+
+# ros package ignores
+catkin_ws/build/*
