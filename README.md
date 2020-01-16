@@ -1,22 +1,20 @@
 # Stingray-Simulation
 
-## Install ROS Melodic
+## Installation
+
+### Install ROS Melodic
 
 Follow the instructions below to install ROS Melodic for Ubuntu 18.04.
 
-[http://wiki.ros.org/melodic/Installation/Ubuntu] 
+http://wiki.ros.org/melodic/Installation/Ubuntu 
 
-## Install Gazebo 9
+### Install Gazebo 9
 
-Follow the installation instruction below to install Gazebo 9 for Ubuntu 18.04.
+Follow the installation instructions below to install Gazebo 9 for Ubuntu 18.04.
 
-[http://gazebosim.org/tutorials?tut=install_ubuntu]
+http://gazebosim.org/tutorials?tut=install_ubuntu
 
+### Install ROS package for gazebo
 
--- OLD
+`sudo apt-get install ros-melodic-gazebo-ros-pkgs`
 
-Install latest version of gazebo
-    *link to install gazebo using ubuntu packages
-- sudo apt-get install gazebo10-common gazebo10 libgazebo10-dev
-Ros melodic (or kinetic)
--
