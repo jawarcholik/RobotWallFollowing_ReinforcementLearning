@@ -42,7 +42,7 @@ Assuming you have placed the repo in your home directory, adjust accordingly if 
 
 ### Run the simulation
 
-`roslaunch stingray-simulation/catkin_ws/stingray_sim/launch/triton_world.launch`
+`roslaunch ~/Stingray-Simulation/catkin_ws/stingray_sim/launch/triton_world.launch`
 
 ### Send move commands
 
