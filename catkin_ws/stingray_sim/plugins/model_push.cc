@@ -26,9 +26,7 @@ namespace gazebo
 	/// \brief A thread the keeps running the rosQueue
 	private: std::thread rosQueueThread;	  
 
-    private: float xSpeed = 0;
-    
-    private: float ySpeed = 0;
+    private: float xSpeed = 0, ySpeed = 0, thetaSpeed = 0;
     
     public: void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
     {
@@ -72,6 +70,7 @@ namespace gazebo
     {
       // Apply a small linear velocity to the model.
       this->model->SetLinearVel(ignition::math::Vector3d(xSpeed, ySpeed, 0));
+      this->model->SetAngularVel(ignition::math::Vector3d(0, 0, thetaSpeed));
     }
 
     // Pointer to the model
@@ -87,6 +86,7 @@ namespace gazebo
     {
         this->xSpeed = _msg->x;
         this->ySpeed = _msg->y;
+	this->thetaSpeed = _msg->theta;
     }
 
     /// \brief ROS helper function that processes messages
