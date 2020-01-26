@@ -36,9 +36,9 @@ http://gazebosim.org/tutorials?tut=install_ubuntu
 ### Setup environment variables
 For the simulation to work, you have to set up environment variables in whatever terminal you want to run the simulation from. We are working on creating a script to do this automatically so that this is easier. 
 Assuming you have placed the repo in your home directory, adjust accordingly if not:
-`export GAZEBO_RESOURCE_PATH=~/stingray-simulation/catkin_ws/stingray_sim`
-`export GAZEBO_MODEL_PATH=~/stingray-simulation/catkin_ws/stingray_sim/models`
-`export GAZEBO_PLUGIN_PATH=~/stingray-simulation/catkin_ws/stingray_sim/plugins/build`
+`export GAZEBO_RESOURCE_PATH=~/Stingray-Simulation/catkin_ws/stingray_sim`
+`export GAZEBO_MODEL_PATH=~/Stingray-Simulation/catkin_ws/stingray_sim/models`
+`export GAZEBO_PLUGIN_PATH=~/Stingray-Simulation/catkin_ws/stingray_sim/plugins/build`
 
 ### Run the simulation
 
