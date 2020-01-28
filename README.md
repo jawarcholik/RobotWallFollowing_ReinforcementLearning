@@ -31,14 +31,10 @@ http://gazebosim.org/tutorials?tut=install_ubuntu
 
 ### Source ROS
 
-`source /opt/ros/melodic/setup.bash`
+`source /opt/ros/melodic/setup.sh`
 
-### Setup environment variables
-For the simulation to work, you have to set up environment variables in whatever terminal you want to run the simulation from. We are working on creating a script to do this automatically so that this is easier. 
-Assuming you have placed the repo in your home directory, adjust accordingly if not:
-`export GAZEBO_RESOURCE_PATH=~/Stingray-Simulation/catkin_ws/stingray_sim`
-`export GAZEBO_MODEL_PATH=~/Stingray-Simulation/catkin_ws/stingray_sim/models`
-`export GAZEBO_PLUGIN_PATH=~/Stingray-Simulation/catkin_ws/stingray_sim/plugins/build`
+### Source Stingray Simulation pacakage setup
+`source ~/Stingray-Simulation/catkin_ws/devel/setup.sh` 
 
 ### Run the simulation
 
