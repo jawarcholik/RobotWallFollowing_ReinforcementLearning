@@ -94,3 +94,9 @@ done
 unset _i
 
 unset _CATKIN_ENVIRONMENT_HOOKS_COUNT
+
+
+#Set the proper resource paths for models, worlds, and plugins
+export GAZEBO_RESOURCE_PATH=~/Stingray-Simulation/catkin_ws/stingray_sim
+export GAZEBO_MODEL_PATH=~/Stingray-Simulation/catkin_ws/stingray_sim/models
+export GAZEBO_PLUGIN_PATH=~/Stingray-Simulation/catkin_ws/stingray_sim/plugins/build
