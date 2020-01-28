@@ -53,12 +53,16 @@ We are trying to figure out a way where you don't have to tab complete.
 
 In another terminal, open rviz:
 
-`rviz`
+`rviz rviz`
+
+Alter the Global Options Fixed Frame paramenter to be 'triton_link'
 
 Add an Image to the displays with the 'Add' button on the lower left of the screen. Configure the Image Topic to be '/camera/color/image_raw'. 
 
 Add a PointCloud2 to the displays with the 'Add' button on the lower left of the screen. Configure the Topic to be 'camera/depth/points'. 
 
+
 ## Known Issues
 - If you run a gazebo instance and then close it, it may still be running in the background. Kill the gzserver and gzclient processes from the terminal if a new instance of gazebo wont load because of this. 
 - Sometimes adding/deleting models into the world crashes gazebo. We are still working on solving this. 
+
