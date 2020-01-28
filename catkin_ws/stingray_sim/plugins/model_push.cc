@@ -9,6 +9,7 @@
 #include "ros/subscribe_options.h"
 #include "geometry_msgs/Pose2D.h"
 #include <iostream>
+#include <cmath>
 
 namespace gazebo
 {
@@ -69,7 +70,10 @@ namespace gazebo
     public: void OnUpdate()
     {
       // Apply a small linear velocity to the model.
-      this->model->SetLinearVel(ignition::math::Vector3d(xSpeed, ySpeed, 0));
+      float world_angle = this->model->WorldPose().Rot().Yaw();
+      float x_setpoint = std::cos(world_angle) * xSpeed;
+      float y_setpoint = std::sin(world_angle) * ySpeed;
+      this->model->SetLinearVel(ignition::math::Vector3d(x_setpoint, y_setpoint, 0));
       this->model->SetAngularVel(ignition::math::Vector3d(0, 0, thetaSpeed));
     }
 
