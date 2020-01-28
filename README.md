@@ -31,10 +31,10 @@ http://gazebosim.org/tutorials?tut=install_ubuntu
 
 ### Source ROS
 
-`source /opt/ros/melodic/setup.sh`
+`source /opt/ros/melodic/setup.bash`
 
 ### Source Stingray Simulation pacakage setup
-`source ~/Stingray-Simulation/catkin_ws/devel/setup.sh` 
+`source ~/Stingray-Simulation/catkin_ws/devel/setup.bash` 
 
 ### Run the simulation
 
@@ -47,7 +47,17 @@ To make the robot move in the simulation, open another terminal, source ROS, and
 `source /opt/ros/melodic/setup.bash`
 `rostopic pub /triton/vel_cmd geometry_msgs/Pose2D <tab>`
 
-We are trying to figure out a way where you don't have to tab complete. Also the theta move command is not implemented yet. 
+We are trying to figure out a way where you don't have to tab complete.
+
+### View 3D point cloud data and image data in rviz
+
+In another terminal, open rviz:
+
+`rviz`
+
+Add an Image to the displays with the 'Add' button on the lower left of the screen. Configure the Image Topic to be '/camera/color/image_raw'. 
+
+Add a PointCloud2 to the displays with the 'Add' button on the lower left of the screen. Configure the Topic to be 'camera/depth/points'. 
 
 ## Known Issues
 - If you run a gazebo instance and then close it, it may still be running in the background. Kill the gzserver and gzclient processes from the terminal if a new instance of gazebo wont load because of this. 
