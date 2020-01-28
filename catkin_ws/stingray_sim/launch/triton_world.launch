@@ -10,5 +10,8 @@
     <arg name="recording" value="false"/>
     <arg name="debug" value="false"/>
   </include>
+  
+  <node name="pointcloud_rotate" pkg="tf" type="static_transform_publisher" 
+	args="0 0 0 -1.58 0 -1.58 camera_link map 30" />
 
 </launch>
