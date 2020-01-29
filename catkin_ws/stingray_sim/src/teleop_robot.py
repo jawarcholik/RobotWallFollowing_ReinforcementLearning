@@ -1,4 +1,7 @@
-#!/usr/bin/python3
+#!/usr/bin/python2
+
+#future imports
+from __future__ import print_function
 
 #ros imports
 import rospy
@@ -7,6 +10,7 @@ from geometry_msgs.msg import Pose2D
 #std imports
 from threading import Thread
 import time
+import sys
 from pynput import keyboard
 
 
@@ -37,12 +41,15 @@ def key_update(key, state):
 
 
 def key_press(key):
+    if key == keyboard.Key.esc:
+        return False
     try:
         #character input
         k = key.char
     except:
         #arrow key/other input
         k = key.name
+
 
     #check if press changes state
     change = key_update(key, True)
@@ -60,8 +67,7 @@ def key_press(key):
             vel_msg.theta += ANG_SPEED
         elif k in ['q']:
             vel_msg.theta -= ANG_SPEED
-    
-        vel_pub.publish(vel_msg)
+    return True
     
 
 def key_release(key):
@@ -87,15 +93,27 @@ def key_release(key):
             vel_msg.theta += -ANG_SPEED
         elif k in ['q']:
             vel_msg.theta -= -ANG_SPEED
+    return True
     
-        vel_pub.publish(vel_msg)
 
+rate = rospy.Rate(10)
 def user_display():
     print('Use WSAD or the ARROW KEYS to control Triton. Use Q & E to rotate Triton. ')
     while True:
         try:
-            print("\rX: {}\tY: {}\tTHETA: {}          ".format(vel_msg.x, vel_msg.y, vel_msg.theta)),
-            time.sleep(0.1)
+            print('\r' + ' '*80,end='')
+            sys.stdout.flush()
+            log_str = "\r\t\tX: {}\tY: {}\tTHETA: {}\t".format(vel_msg.x,
+                                                          vel_msg.y,
+                                                          vel_msg.theta)
+            print(log_str, end=' ')
+            sys.stdout.flush()
+
+            if not rospy.is_shutdown():
+                rate.sleep()
+                vel_pub.publish(vel_msg)
+            else:
+                return
         except KeyboardInterrupt:
             return
 
