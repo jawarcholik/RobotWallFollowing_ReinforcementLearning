@@ -11,7 +11,7 @@
 
 # since this file is sourced either use the provided _CATKIN_SETUP_DIR
 # or fall back to the destination set at configure time
-: ${_CATKIN_SETUP_DIR:=/home/hcr/stingray-simulation/catkin_ws/devel}
+: ${_CATKIN_SETUP_DIR:=/home/kristin/Stingray-Simulation/catkin_ws/devel}
 _SETUP_UTIL="$_CATKIN_SETUP_DIR/_setup_util.py"
 unset _CATKIN_SETUP_DIR
 
@@ -94,9 +94,3 @@ done
 unset _i
 
 unset _CATKIN_ENVIRONMENT_HOOKS_COUNT
-
-
-#Set the proper resource paths for models, worlds, and plugins
-export GAZEBO_RESOURCE_PATH=~/Stingray-Simulation/catkin_ws/stingray_sim
-export GAZEBO_MODEL_PATH=~/Stingray-Simulation/catkin_ws/stingray_sim/models
-export GAZEBO_PLUGIN_PATH=~/Stingray-Simulation/catkin_ws/stingray_sim/plugins/build
