@@ -64,9 +64,9 @@ def key_press(key):
         elif k in ['a', 'left']:
             vel_msg.x -= LIN_SPEED
         elif k in ['e']:
-            vel_msg.theta += ANG_SPEED
-        elif k in ['q']:
             vel_msg.theta -= ANG_SPEED
+        elif k in ['q']:
+            vel_msg.theta += ANG_SPEED
     return True
     
 
@@ -90,9 +90,9 @@ def key_release(key):
         elif k in ['a', 'left']:
             vel_msg.x -= -LIN_SPEED
         elif k in ['e']:
-            vel_msg.theta += -ANG_SPEED
+            vel_msg.theta += ANG_SPEED
         elif k in ['q']:
-            vel_msg.theta -= -ANG_SPEED
+            vel_msg.theta -= ANG_SPEED
     return True
     
 

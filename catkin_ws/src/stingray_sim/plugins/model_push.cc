@@ -11,6 +11,10 @@
 #include <iostream>
 #include <cmath>
 
+#ifndef PI
+#define PI 3.14159265
+#endif
+
 namespace gazebo
 {
   class ModelPush : public ModelPlugin
@@ -71,8 +75,11 @@ namespace gazebo
     {
       // Apply a small linear velocity to the model.
       float world_angle = this->model->WorldPose().Rot().Yaw();
-      float x_setpoint = std::cos(world_angle) * xSpeed;
-      float y_setpoint = std::sin(world_angle) * ySpeed;
+      float x_setpoint = xSpeed * std::cos(world_angle) + 
+                         ySpeed * std::cos(world_angle+PI/2.0);
+      float y_setpoint = xSpeed * std::sin(world_angle) + 
+                         ySpeed * std::sin(world_angle+PI/2.0);
+
       this->model->SetLinearVel(ignition::math::Vector3d(x_setpoint, y_setpoint, 0));
       this->model->SetAngularVel(ignition::math::Vector3d(0, 0, thetaSpeed));
     }
