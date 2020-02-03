@@ -22,6 +22,10 @@ http://gazebosim.org/tutorials?tut=install_ubuntu
 
 `sudo apt-get install ros-melodic-rviz`
 
+### Install Python packages
+
+`sudo apt-get install pynput`
+
 ### Download Stingray Simulation Repo
 
 `cd ~`
@@ -36,33 +40,47 @@ http://gazebosim.org/tutorials?tut=install_ubuntu
 ### Source Stingray Simulation pacakage setup
 `source ~/Stingray-Simulation/catkin_ws/devel/setup.bash` 
 
-### Run the simulation
+### Running the simulation
 
-`roslaunch ~/Stingray-Simulation/catkin_ws/stingray_sim/launch/triton_world.launch`
+`roslaunch stingray_simulation gazebo_base.launch`
 
 ### Send move commands
 
-To make the robot move in the simulation, open another terminal, source ROS, and publish to the vel_cmd topic. To do this, you must tab complete the last portion of the command for it to be formatted correctly and then change the x,y,and theta values to what you would like them to be.
+To make the robot move in the simulation, open another terminal, source ROS like above, and publish to the vel_cmd topic. To do this, you must tab complete the last portion of the command for it to be formatted correctly and then change the x,y,and theta values to what you would like them to be.
 
-`source /opt/ros/melodic/setup.bash`
 `rostopic pub /triton/vel_cmd geometry_msgs/Pose2D <tab>`
 
-We are trying to figure out a way where you don't have to tab complete.
+and fill in the corresponding values.
 
-### View 3D point cloud data and image data in rviz
+### Running the simulation with keyboard control
 
-In another terminal, open rviz:
+`roslaunch stingray_simulation gazebo_teleop.launch`
+
+You can now use the keyboad to control the robot with WSAD/Arrow keys to translate and with Q & E to rotate it.  
+
+
+## Running SLAM
+
+To run the simluation with slam mapping enabled:
+
+`roslaunch stingray_simulation slam.launch`
+
+And similarly with keyboard control:
+
+`roslaunch stingray_simulation slam.launch`
+
+In another terminal, open rviz (ROS visualizer) to view the SLAM mappings:
 
 `rviz rviz`
 
-Alter the Global Options Fixed Frame paramenter to be 'triton_link'
+Alter the Global Options Fixed Frame paramenter to be 'map'
 
-Add an Image to the displays with the 'Add' button on the lower left of the screen. Configure the Image Topic to be '/camera/color/image_raw'. 
+Add an Image to the displays with the 'Add' button on the lower left of the screen. Configure the Image Topic to be '/camera/color/image_raw'. You should be able to see an image of the robots view in the window in the lower left.  
 
-Add a PointCloud2 to the displays with the 'Add' button on the lower left of the screen. Configure the Topic to be 'camera/depth/points'. 
+Add a PointCloud2 to the displays with the 'Add' button on the lower left of the screen. Configure the Topic to be 'camera/depth/points'. 3D Point cloud data should now be up showing up in the 3D pane.  
 
 
 ## Known Issues
 - If you run a gazebo instance and then close it, it may still be running in the background. Kill the gzserver and gzclient processes from the terminal if a new instance of gazebo wont load because of this. 
-- Sometimes adding/deleting models into the world crashes gazebo. We are still working on solving this. 
+- Sometimes adding/deleting models into the world crashes gazebo. 
 

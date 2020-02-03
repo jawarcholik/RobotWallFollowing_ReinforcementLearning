@@ -1,6 +1,6 @@
 <launch>
 
     <include file="$(find stingray_sim)/launch/slam.launch"> </include>
-    <node pkg="stingray_sim" type="teleop_robot.py" name="teleop" output="screen"/>
+    <node pkg="stingray_sim" type="teleop_robot.py" name="teleop" launch-prefix="xterm -e"/>
     
 </launch>
