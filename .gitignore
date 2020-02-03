@@ -34,6 +34,7 @@
 # ros package ignores
 catkin_ws/build/*
 */CMakeFiles/
+*/CMakeTmp/
 */cmake_install.cmake
 */Makefile
 */CMakeCache.txt
