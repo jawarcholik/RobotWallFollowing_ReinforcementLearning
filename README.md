@@ -24,7 +24,11 @@ http://gazebosim.org/tutorials?tut=install_ubuntu
 
 ### Install Python packages
 
-`sudo apt-get install pynput`
+`pip install pynput`
+
+### Install Other Dependencies
+
+sudo apt-get install xterm
 
 ### Download Stingray Simulation Repo
 
