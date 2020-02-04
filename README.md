@@ -70,6 +70,21 @@ You can press Ctrl+C to end the current message and can retype the command to se
 
 You can now use the keyboad to control the robot with WSAD/Arrow keys to translate and with Q & E to rotate it. The input from the keyboard is converted to a ros message sent to the same /triton/vel_cmd topic.
 
+## Visualize Camera and Pointcloud Data
+
+In another terminal, open rviz (ROS visualizer) to view the SLAM mappings:
+
+`rviz rviz`
+
+Alter the Global Options Fixed Frame paramenter to be 'map'
+
+Add an Image to the displays with the 'Add' button on the lower left of the screen. Configure the Image Topic to be '/camera/color/image_raw'. You should be able to see an image of the robots view in the window in the lower left.  
+
+Add a PointCloud2 to the displays with the 'Add' button on the lower left of the screen. Configure the Topic to be 'camera/depth/points'. 3D Point cloud data should now be up showing up in the 3D pane.  
+
+## Visualize Odometry Data
+
+Add an Odometry to the displays with the 'Add' button on the lower left of the screen. Configure the Topic to be '/odom' and Keep to be 1 (or any value you wish, depending on how much history ofodometry data you would like to show). You should see red arrows that depict the location and rotation of your robot in the simulation.  
 
 ## Running SLAM
 
@@ -87,10 +102,7 @@ In another terminal, open rviz (ROS visualizer) to view the SLAM mappings:
 
 Alter the Global Options Fixed Frame paramenter to be 'map'
 
-Add an Image to the displays with the 'Add' button on the lower left of the screen. Configure the Image Topic to be '/camera/color/image_raw'. You should be able to see an image of the robots view in the window in the lower left.  
-
-Add a PointCloud2 to the displays with the 'Add' button on the lower left of the screen. Configure the Topic to be 'camera/depth/points'. 3D Point cloud data should now be up showing up in the 3D pane.  
-
+Add a Map to the displays with the 'Add' button on the lower left of the screen. Configure the Topic to be '/map'. You should see a map of your simulated robot's surroundings begin to be created. Navigate around your world to build up the map.   
 
 ## Known Issues
 - If you run a gazebo instance and then close it, it may still be running in the background. Kill the gzserver and gzclient processes from the terminal if a new instance of gazebo wont load because of this. 
