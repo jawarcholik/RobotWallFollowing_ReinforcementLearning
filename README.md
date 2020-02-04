@@ -36,13 +36,13 @@ http://gazebosim.org/tutorials?tut=install_ubuntu
 
 `git clone https://github.com/kristinfarris/Stingray-Simulation.git`
 
-## Running the Simulation
-
 ### Run catkin_make
 
 `cd ~/Stingray-Simulation/catkin_ws`
 
 `catkin_make`
+
+## Running the Simulation
 
 ### Source ROS root
 
