@@ -24,20 +24,32 @@ http://gazebosim.org/tutorials?tut=install_ubuntu
 
 ### Install Python packages
 
-`sudo apt-get install pynput`
+`pip install pynput`
+
+### Install Other Dependencies
+
+`sudo apt-get install xterm ros-melodic-depthimage-to-laserscan ros-melodic-gmapping`
 
 ### Download Stingray Simulation Repo
 
 `cd ~`
+
 `git clone https://github.com/kristinfarris/Stingray-Simulation.git`
 
 ## Running the Simulation
 
-### Source ROS
+### Run catkin_make
+
+`cd ~/Stingray-Simulation/catkin_ws`
+
+`catkin_make`
+
+### Source ROS root
 
 `source /opt/ros/melodic/setup.bash`
 
-### Source Stingray Simulation pacakage setup
+### Source Stingray Simulation package
+
 `source ~/Stingray-Simulation/catkin_ws/devel/setup.bash` 
 
 ### Running the simulation
@@ -46,17 +58,17 @@ http://gazebosim.org/tutorials?tut=install_ubuntu
 
 ### Send move commands
 
-To make the robot move in the simulation, open another terminal, source ROS like above, and publish to the vel_cmd topic. To do this, you must tab complete the last portion of the command for it to be formatted correctly and then change the x,y,and theta values to what you would like them to be.
+To make the robot move in the simulation, open another terminal, source ROS root like above, and publish to the /triton/vel_cmd topic. To do this, you must tab complete the last portion of the command for it to be formatted correctly and then change the x,y,and theta values to the desired setpoints.
 
 `rostopic pub /triton/vel_cmd geometry_msgs/Pose2D <tab>`
 
-and fill in the corresponding values.
+You can press Ctrl+C to end the current message and can retype the command to send a new one. 
 
 ### Running the simulation with keyboard control
 
 `roslaunch stingray_simulation gazebo_teleop.launch`
 
-You can now use the keyboad to control the robot with WSAD/Arrow keys to translate and with Q & E to rotate it.  
+You can now use the keyboad to control the robot with WSAD/Arrow keys to translate and with Q & E to rotate it. The input from the keyboard is converted to a ros message sent to the same /triton/vel_cmd topic.
 
 
 ## Running SLAM
@@ -67,7 +79,7 @@ To run the simluation with slam mapping enabled:
 
 And similarly with keyboard control:
 
-`roslaunch stingray_simulation slam.launch`
+`roslaunch stingray_simulation slam_teleop.launch`
 
 In another terminal, open rviz (ROS visualizer) to view the SLAM mappings:
 
