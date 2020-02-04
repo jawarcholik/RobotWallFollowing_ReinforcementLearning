@@ -48,15 +48,17 @@ http://gazebosim.org/tutorials?tut=install_ubuntu
 
 `source /opt/ros/melodic/setup.bash`
 
-### Source Stingray Simulation package
+### Source Stingray Simulation Package and Setup
 
 `source ~/Stingray-Simulation/catkin_ws/devel/setup.bash` 
 
-### Running the simulation
+`source ~/Stingray-Simulation/stingray_setup.bash` 
+
+### Running the Simulation
 
 `roslaunch stingray_simulation gazebo_base.launch`
 
-### Send move commands
+### Send Move Commands
 
 To make the robot move in the simulation, open another terminal, source ROS root like above, and publish to the /triton/vel_cmd topic. To do this, you must tab complete the last portion of the command for it to be formatted correctly and then change the x,y,and theta values to the desired setpoints.
 
@@ -64,7 +66,7 @@ To make the robot move in the simulation, open another terminal, source ROS root
 
 You can press Ctrl+C to end the current message and can retype the command to send a new one. 
 
-### Running the simulation with keyboard control
+### Running the Simulation with Keyboard Control
 
 `roslaunch stingray_simulation gazebo_teleop.launch`
 
@@ -84,7 +86,7 @@ Add a PointCloud2 to the displays with the 'Add' button on the lower left of the
 
 ## Visualize Odometry Data
 
-Add an Odometry to the displays with the 'Add' button on the lower left of the screen. Configure the Topic to be '/odom' and Keep to be 1 (or any value you wish, depending on how much history ofodometry data you would like to show). You should see red arrows that depict the location and rotation of your robot in the simulation.  
+In rviz, add an Odometry to the displays with the 'Add' button on the lower left of the screen. Configure the Topic to be '/odom' and Keep to be 1 (or any value you wish, depending on how much history of odometry data you would like to show). You should see red arrows that depict the location and rotation of your robot in the simulation.  
 
 ## Running SLAM
 
@@ -107,4 +109,5 @@ Add a Map to the displays with the 'Add' button on the lower left of the screen.
 ## Known Issues
 - If you run a gazebo instance and then close it, it may still be running in the background. Kill the gzserver and gzclient processes from the terminal if a new instance of gazebo wont load because of this. 
 - Sometimes adding/deleting models into the world crashes gazebo. 
+- The slam mapping feature has a bug related to its frame of reference, which results in maps that look placed on the plane disconnected. 
 
