@@ -67,6 +67,10 @@ def key_press(key):
             vel_msg.theta -= ANG_SPEED
         elif k in ['q']:
             vel_msg.theta += ANG_SPEED
+        elif k in ['+']:
+            LINEAR_SPEED += 0.2
+        elif k in ['-']:
+            LINEAR_SPEED -= 0.2
     return True
     
 
@@ -82,23 +86,23 @@ def key_release(key):
     if change:
         global vel_msg
         if   k in ['w', 'up']:
-            vel_msg.y += -LIN_SPEED
+            vel_msg.y = 0
         elif k in ['s', 'down']:
-            vel_msg.y -= -LIN_SPEED
+            vel_msg.y = 0
         elif k in ['d', 'right']:
-            vel_msg.x += -LIN_SPEED
+            vel_msg.x = 0
         elif k in ['a', 'left']:
-            vel_msg.x -= -LIN_SPEED
+            vel_msg.x = 0
         elif k in ['e']:
-            vel_msg.theta += ANG_SPEED
+            vel_msg.theta = 0
         elif k in ['q']:
-            vel_msg.theta -= ANG_SPEED
+            vel_msg.theta = 0
     return True
     
 
 rate = rospy.Rate(10)
 def user_display():
-    print('Use WSAD or the ARROW KEYS to control Triton. Use Q & E to rotate Triton. ')
+    print('Use WSAD or the ARROW KEYS to control Triton.\nUse Q & E to rotate Triton.\nUse +/- to increase/decrease speed')
     while True:
         try:
             print('\r' + ' '*80,end='')
@@ -119,7 +123,7 @@ def user_display():
 
 
 #start key listener thread
-key_listener = keyboard.Listener(on_press=key_press, on_release=key_release) 
+key_listener = keyboard.Listener(on_press=key_press, on_release=key_release, suppress=True) 
 key_listener.start()
 
 #start user display thread
