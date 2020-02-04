@@ -28,7 +28,7 @@ http://gazebosim.org/tutorials?tut=install_ubuntu
 
 ### Install Other Dependencies
 
-`sudo apt-get install xterm ros-melodic-depthimage-to-laserscan`
+`sudo apt-get install xterm ros-melodic-depthimage-to-laserscan ros-melodic-gmapping`
 
 ### Download Stingray Simulation Repo
 
@@ -40,7 +40,8 @@ http://gazebosim.org/tutorials?tut=install_ubuntu
 
 ### Run catkin_make
 
-`cd ~/Stingray-Simulation/catkin_ws` 
+`cd ~/Stingray-Simulation/catkin_ws`
+
 `catkin_make`
 
 ### Source ROS root
