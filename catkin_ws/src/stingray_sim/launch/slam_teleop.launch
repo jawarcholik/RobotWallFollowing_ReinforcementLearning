@@ -1,6 +1,10 @@
 <launch>
 
-    <include file="$(find stingray_sim)/launch/slam.launch"> </include>
+    <arg name="world" default="empty_world.world"/>
+
+    <include file="$(find stingray_sim)/launch/slam.launch"> 
+        <arg name="world" value="$(arg world)" />
+    </include>
     <node pkg="stingray_sim" type="teleop_robot.py" name="teleop" launch-prefix="xterm -e"/>
     
 </launch>

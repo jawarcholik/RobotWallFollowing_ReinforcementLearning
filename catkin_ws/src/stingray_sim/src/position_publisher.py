@@ -7,7 +7,8 @@ import tf
 
 rospy.init_node('pose_pub')
 
-odom_pub=rospy.Publisher ('/odom', Odometry,queue_size=1)
+odom_pub=rospy.Publisher ('/triton/odom', Odometry,queue_size=1)
+
 
 rospy.wait_for_service ('/gazebo/get_model_state')
 get_model_srv = rospy.ServiceProxy('/gazebo/get_model_state', GetModelState)
@@ -21,7 +22,7 @@ model.model_name='triton'
 
 tf_broadcast = tf.TransformBroadcaster()
 
-r = rospy.Rate(50)
+r = rospy.Rate(10)
 
 
 while not rospy.is_shutdown():

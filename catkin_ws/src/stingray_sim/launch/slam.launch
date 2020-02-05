@@ -1,8 +1,13 @@
 <launch>
 
-    <include file="$(find stingray_sim)/launch/gazebo_base.launch"> </include>
+<arg name="world" default="empty_world.world"/>
+
+    <include file="$(find stingray_sim)/launch/gazebo_base.launch">
+        <arg name="world" value="$(arg world)"/>
+    </include>
 
     <node pkg="stingray_sim" name="odom_publisher" type="position_publisher.py"/>
+    <node pkg="stingray_sim" name="path_drawing" type="draw_path.py"/>
     
     <node pkg="depthimage_to_laserscan" type="depthimage_to_laserscan" name="depth_to_laser">
         <param name="scan_height" value="3"/>
