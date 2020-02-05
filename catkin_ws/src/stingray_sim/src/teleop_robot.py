@@ -40,8 +40,12 @@ def key_update(key, state):
 
 
 
+stop_display = False
 def key_press(key):
     if key == keyboard.Key.esc:
+        global stop_display
+        stop_display = True
+        print('\nPress Ctrl+C to exit')
         return False
     try:
         #character input
@@ -54,7 +58,7 @@ def key_press(key):
     #check if press changes state
     change = key_update(key, True)
     if change:
-        global vel_msg
+        global vel_msg, LIN_SPEED, ANG_SPEED
         if   k in ['w', 'up']:
             vel_msg.y += LIN_SPEED
         elif k in ['s', 'down']:
@@ -67,10 +71,10 @@ def key_press(key):
             vel_msg.theta -= ANG_SPEED
         elif k in ['q']:
             vel_msg.theta += ANG_SPEED
-        elif k in ['+']:
-            LINEAR_SPEED += 0.2
-        elif k in ['-']:
-            LINEAR_SPEED -= 0.2
+        elif k in ['x']:
+            LIN_SPEED += 0.1
+        elif k in ['z']:
+            LIN_SPEED -= 0.1
     return True
     
 
@@ -97,12 +101,16 @@ def key_release(key):
             vel_msg.theta = 0
         elif k in ['q']:
             vel_msg.theta = 0
+        elif k in ['x']:
+            pass
+        elif k in ['z']:
+            pass
     return True
     
 
 rate = rospy.Rate(10)
 def user_display():
-    print('Use WSAD or the ARROW KEYS to control Triton.\nUse Q & E to rotate Triton.\nUse +/- to increase/decrease speed')
+    print('Use WSAD or the ARROW KEYS to control Triton.\nUse Q & E to rotate Triton.\nUse x/z to increase/decrease speed')
     while True:
         try:
             print('\r' + ' '*80,end='')
@@ -113,17 +121,21 @@ def user_display():
             print(log_str, end=' ')
             sys.stdout.flush()
 
+            global stop_display
+            if stop_display:
+                exit(0) 
+
             if not rospy.is_shutdown():
                 rate.sleep()
                 vel_pub.publish(vel_msg)
             else:
-                return
+                exit(0)
         except KeyboardInterrupt:
-            return
+            exit(0)
 
 
 #start key listener thread
-key_listener = keyboard.Listener(on_press=key_press, on_release=key_release, suppress=True) 
+key_listener = keyboard.Listener(on_press=key_press, on_release=key_release) 
 key_listener.start()
 
 #start user display thread
