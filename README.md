@@ -1,6 +1,11 @@
-# Stingray-Simulation
+# Outline
+- Installation
+- Running the Simulation
+- Using the Simulation
 
-## Installation
+
+
+# Installation
 
 ### Install ROS Melodic
 
@@ -42,7 +47,13 @@ http://gazebosim.org/tutorials?tut=install_ubuntu
 
 `catkin_make`
 
-## Running the Simulation
+
+
+# Running the Simulation
+
+## Setup
+
+Before running the simulation you must first:
 
 ### Source ROS root
 
@@ -54,82 +65,97 @@ http://gazebosim.org/tutorials?tut=install_ubuntu
 
 `source ~/Stingray-Simulation/stingray_setup.bash` 
 
-## Running the Base Gazebo simulator
+## Running the Base Gazebo World
 
-`roslaunch stingray_simulation gazebo_base.launch`
+To run the simulation with an empty world:
 
-### Sending Move Commands
+`roslaunch stingray_sim gazebo_base.launch`
 
-To make the robot move in the simulation, open another terminal, source ROS root like above, and publish to the /triton/vel_cmd topic. To do this, you must tab complete the last portion of the command for it to be formatted correctly and then change the x,y,and theta values to the desired setpoints.
+## Running other Gazebo Worlds
+
+Running another gazebo world is as easy as passing a world argument to whatever launch file you are launching. There is an example world "triton_world.world" in the repo and the example argument passing shown below:
+
+`roslaunch stingray_sim gazebo_teleop.launch world:=triton_world.world`
+
+All worlds run this way need to be placed in the worlds/ directory of the stingray_sim package. 
+
+
+
+# Using the Simulation
+
+## Sending Move Commands
+
+To make the robot move in the simulation, open another terminal, source ROS root like above, and publish to the /triton/vel_cmd topic. To do this, you must tab complete the last portion of the command for it to be formatted correctly and then change the x, y, and theta values to the desired setpoints.
 
 `rostopic pub /triton/vel_cmd geometry_msgs/Pose2D <tab>`
 
 You can press Ctrl+C to end the current message and can retype the command to send a new one. 
 
-### Running the Simulation with Keyboard Control
+## Moving the Robot with Keyboard Control
 
-`roslaunch stingray_simulation gazebo_teleop.launch`
+To make the robot move using your keyboard, run: 
+
+`roslaunch stingray_sim gazebo_teleop.launch`
 
 You can now use the keyboad to control the robot with WSAD/Arrow keys to translate and with Q & E to rotate it. The input from the keyboard is converted to a ros message sent to the same /triton/vel_cmd topic.
 
-### Running other Gazebo worlds
+## Visualizing Data
 
-Running another gazebo world is as easy as passing a world argument to whatever launch file you are launching. There is an example world "triton_world.world" in the repo and the example argument passing shown below:
+To visualize data, we will use RViz (ROS Visualizer).
 
-`roslaunch stingray_simulation gazebo_teleop.launch world:=triton_world.world`
-
-All worlds run this way need to be placed in the worlds/ directory of the stingray_sim package. 
-
-
-### Visualize Camera and Pointcloud Data
-
-To run the simluation with rviz capabilties enabled:
-
-`roslaunch stingray_simulation slam.launch`
-
-And similarly with keyboard control:
-
-`roslaunch stingray_simulation slam_teleop.launch`
-
-In another terminal, open rviz (ROS visualizer) to view ros data:
+In another terminal, open RViz (ROS visualizer) to view ros data:
 
 `rviz rviz`
 
-Alter the Global Options Fixed Frame paramenter to be 'triton_link'
+### Visualizing Camera Data
 
-### Visualize Image and Point Cloud Data
+In RViz, alter the Global Options Fixed Frame paramenter to be 'triton_link'
 
 Add an Image to the displays with the 'Add' button on the lower left of the screen. Configure the Image Topic to be '/camera/color/image_raw'. You should be able to see an image of the robots view in the window in the lower left.  
 
-Add a PointCloud2 to the displays with the 'Add' button on the lower left of the screen. Configure the Topic to be 'camera/depth/points'. 3D Point cloud data should now be up showing up in the 3D pane.  
+### Visualizing Point Cloud Data 
 
-### Visualize Odometry and Path Data
+To run the simulation with RViz capabilities enabled:
 
-In rviz, add an Odometry to the displays with the 'Add' button on the lower left of the screen. Configure the Topic to be '/triton/odom' and Keep to be 1 (or any value you wish, depending on how much history of odometry data you would like to show). You should see red arrows that depict the location and rotation of your robot in the simulation.  
-
-In rviz, add an Path to the displays using a similar method to the Odometry. Configure the Topic to be '/triton/path'. You should see green lines that depict the path the robot has followed since startup.  
-
-## Running SLAM
-
-To run the simluation with slam mapping enabled:
-
-`roslaunch stingray_simulation slam.launch`
+`roslaunch stingray_sim slam.launch`
 
 And similarly with keyboard control:
 
-`roslaunch stingray_simulation slam_teleop.launch`
+`roslaunch stingray_sim slam_teleop.launch`
 
-In another terminal, open rviz (ROS visualizer) to view the SLAM mappings:
+In RViz, alter the Global Options Fixed Frame paramenter to be 'triton_link'
 
-`rviz rviz`
+Add a PointCloud2 to the displays with the 'Add' button on the lower left of the screen. Configure the Topic to be 'camera/depth/points'. 3D Point cloud data should now be up showing up in the 3D pane.  
 
-### Visualize SLAM Map Data
+### Visualize Odometry Data
 
-Alter the Global Options Fixed Frame paramenter to be 'map'
+In RViz, alter the Global Options Fixed Frame paramenter to be 'triton_link'
+
+Add an Odometry to the displays with the 'Add' button on the lower left of the screen. Configure the Topic to be '/triton/odom' and Keep to be 1 (or any value you wish, depending on how much history of odometry data you would like to show). You should see red arrows that depict the location and rotation of your robot in the simulation.  
+
+### Visualize Path Data
+
+In RViz, alter the Global Options Fixed Frame paramenter to be 'triton_link'
+
+Add a Path to the displays using a similar method to the Odometry. Configure the Topic to be '/triton/path'. You should see green lines that depict the path the robot has followed since startup.  
+
+### Visualizing SLAM Data
+
+To run the simluation with slam mapping enabled:
+
+`roslaunch stingray_sim slam.launch`
+
+And similarly with keyboard control:
+
+`roslaunch stingray_sim slam_teleop.launch`
+
+In RViz, alter the Global Options Fixed Frame paramenter to be 'map'
 
 Add a Map to the displays with the 'Add' button on the lower left of the screen. Configure the Topic to be '/map'. You should see a map of your simulated robot's surroundings begin to be created. Navigate around your world to build up the map.   
 
-## Known Issues
+
+
+# Known Issues
 - If you run a gazebo instance and then close it, it may still be running in the background. Kill the gzserver and gzclient processes from the terminal if a new instance of gazebo wont load because of this. 
 - Sometimes adding/deleting models into the world crashes gazebo. 
 - The slam mapping feature has a bug related to its frame of reference, which results in maps that look placed on the plane disconnected. 
