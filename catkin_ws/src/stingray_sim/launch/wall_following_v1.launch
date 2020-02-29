@@ -1,0 +1,20 @@
+<launch>
+    <arg name="world_file" default="worlds/largemaze-triton-lidar.world"/>
+  
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+      <arg name="use_sim_time" value="true"/>
+      <arg name="debug" value="false "/>  <!-- false for real training, true for debugging -->
+      <arg name="paused" value="false"/>
+      <arg name="gui" value="true" />
+      <arg name="world_name" value="$(arg world_file)"/>
+      <arg name="verbose" value="true"/>
+      <arg name="recording" value="false"/>
+      
+    </include>
+  
+    <node name="pointcloud_rotate" pkg="tf" type="static_transform_publisher"
+        args="0 0 0 0 -1.58 1.58 camera_link triton_link 50" />
+
+    <node pkg="stingray_sim" name="path_drawing" type="draw_path.py"/>
+
+</launch>

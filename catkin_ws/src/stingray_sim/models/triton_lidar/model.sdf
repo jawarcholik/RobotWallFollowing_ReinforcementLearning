@@ -34,8 +34,8 @@
             </vertical>
           </scan>
           <range>
-            <min>0.105</min>
-            <max>10.0</max>
+            <min>0.12</min>
+            <max>3.5</max>
             <resolution>0.015</resolution>
           </range>
           <noise>
@@ -44,9 +44,9 @@
             <stddev>0.01</stddev>
           </noise>
         </ray>
-	<plugin name="gazebo_ros_head_hokuyo_controller" filename="libgazebo_ros_laser.so">
-        	<topicName>/scan </topicName>
-      	</plugin>
+        <plugin name='gazebo_ros_head_hokuyo_controller' filename='libgazebo_ros_laser.so'>
+          <topicName>/scan</topicName>
+        </plugin>
       </sensor>
       <self_collide>0</self_collide>
       <enable_wind>0</enable_wind>
@@ -137,7 +137,7 @@
         </inertia>
         <pose frame=''>0 0 0 0 -0 0</pose>
       </inertial>
-      <pose frame=''>0 -0 0.035 0 -0 0</pose>
+      <pose frame=''>0 0 0.035 0 -0 0</pose>
       <gravity>1</gravity>
       <self_collide>0</self_collide>
       <kinematic>0</kinematic>
@@ -236,7 +236,7 @@
         </inertia>
         <pose frame=''>0 0 0 0 -0 0</pose>
       </inertial>
-      <pose frame=''>0.055 0.095 0.03 2.09445 1.57 6.9e-05</pose>
+      <pose frame=''>0.055 0.095 0.03 2.09438 1.57 3e-06</pose>
       <gravity>1</gravity>
       <self_collide>0</self_collide>
       <kinematic>0</kinematic>
@@ -336,7 +336,7 @@
         </inertia>
         <pose frame=''>0 0 0 0 -0 0</pose>
       </inertial>
-      <pose frame=''>0.055 -0.095 0.03 -2.09433 1.57 2.9e-05</pose>
+      <pose frame=''>0.055 -0.095 0.03 -2.09427 1.57 9.2e-05</pose>
       <gravity>1</gravity>
       <self_collide>0</self_collide>
       <kinematic>0</kinematic>
@@ -523,25 +523,10 @@
         </surface>
       </collision>
     </link>
-    <joint name='link_1_JOINT_0' type='prismatic'>
+    <joint name='link_1_JOINT_0' type='fixed'>
       <parent>link_1</parent>
       <child>lidar</child>
       <pose frame=''>0 0 0 0 -0 0</pose>
-      <axis>
-        <xyz>1 0 0</xyz>
-        <use_parent_model_frame>0</use_parent_model_frame>
-        <limit>
-          <lower>-1.79769e+308</lower>
-          <upper>1.79769e+308</upper>
-          <effort>-1</effort>
-          <velocity>-1</velocity>
-        </limit>
-        <dynamics>
-          <spring_reference>0</spring_reference>
-          <spring_stiffness>0</spring_stiffness>
-          <damping>0</damping>
-        </dynamics>
-      </axis>
       <physics>
         <ode>
           <limit>
