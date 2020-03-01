@@ -80,7 +80,8 @@ namespace gazebo
       float y_setpoint = xSpeed * std::sin(world_angle) + 
                          ySpeed * std::sin(world_angle+PI/2.0);
 
-      this->model->SetLinearVel(ignition::math::Vector3d(x_setpoint, y_setpoint, 0));
+      float z_setpoint = this->model->RelativeLinearVel().Z();
+      this->model->SetLinearVel(ignition::math::Vector3d(x_setpoint, y_setpoint, z_setpoint));
       this->model->SetAngularVel(ignition::math::Vector3d(0, 0, thetaSpeed));
     }
 
