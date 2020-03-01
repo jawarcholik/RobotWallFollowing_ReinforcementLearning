@@ -85,9 +85,9 @@ All worlds run this way need to be placed in the worlds/ directory of the stingr
 
 ## Sending Move Commands
 
-To make the robot move in the simulation, open another terminal, source ROS root like above, and publish to the /triton/vel_cmd topic. To do this, you must tab complete the last portion of the command for it to be formatted correctly and then change the x, y, and theta values to the desired setpoints.
+To make the robot move in the simulation, open another terminal, source ROS root like above, and publish to the /triton_lidar/vel_cmd topic. To do this, you must tab complete the last portion of the command for it to be formatted correctly and then change the x, y, and theta values to the desired setpoints.
 
-`rostopic pub /triton/vel_cmd geometry_msgs/Pose2D <tab>`
+`rostopic pub /triton_lidar/vel_cmd geometry_msgs/Pose2D <tab>`
 
 You can press Ctrl+C to end the current message and can retype the command to send a new one. 
 
@@ -97,7 +97,7 @@ To make the robot move using your keyboard, open another terminal, run the sourc
 
 `rosrun stingray_sim teleop_robot.py`
 
-You can now use the keyboard to control the robot with WSAD/Arrow keys to translate and with Q & E to rotate it. The input from the keyboard is converted to a ros message sent to the same /triton/vel_cmd topic.
+You can now use the keyboard to control the robot with WSAD/Arrow keys to translate and with Q & E to rotate it. The input from the keyboard is converted to a ros message sent to the same /triton_lidar/vel_cmd topic.
 
 ## Visualizing Data
 
