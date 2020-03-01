@@ -232,7 +232,7 @@
           <always_on>1</always_on>
           <visualize>0</visualize>
           <pose frame=''>0 0 0.171 0 -0 0</pose>
-          <update_rate>1800</update_rate>
+          <update_rate>5</update_rate>
           <ray>
             <scan>
               <horizontal>
