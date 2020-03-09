@@ -39,7 +39,7 @@ http://gazebosim.org/tutorials?tut=install_ubuntu
 
 `cd ~`
 
-`git clone https://github.com/kristinfarris/Stingray-Simulation.git`
+`git clone https://gitlab.com/HCRLab/stingray-robotics/Stingray-Simulation.git`
 
 ### Run catkin_make
 
