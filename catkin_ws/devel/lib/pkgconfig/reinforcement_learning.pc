@@ -1,0 +1,8 @@
+prefix=/home/jawarcholik/Stingray-Simulation/catkin_ws/devel
+
+Name: reinforcement_learning
+Description: Description of reinforcement_learning
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

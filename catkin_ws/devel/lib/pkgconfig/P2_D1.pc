@@ -1,0 +1,8 @@
+prefix=/home/jawarcholik/Stingray-Simulation/catkin_ws/devel
+
+Name: P2_D1
+Description: Description of P2_D1
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

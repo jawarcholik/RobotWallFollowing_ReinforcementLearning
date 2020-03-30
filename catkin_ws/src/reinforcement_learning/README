@@ -1,0 +1,17 @@
+Jacob Warcholik
+
+This package is a naive implementation of a reinforcement learning simulation to teach the triton robot to follow a wall.
+The implementation is naive as there is no reward function and the Q-Table values do not get updated they are initially
+set using some basic assumptions on the likelihood an action will be beneficial given the state that is observed.
+In the source folder is the q_learning.py script. This script defines an environment and a robot agent. In addition there
+is a definition for the state space and action space along with the naive definition of the Q-Table. The robot agent subscribes
+to the /scan topic to get information on the distances from the walls the robot is. It has a publisher node which sends Pose2D
+messages to the /triton_lidar/vel_cmd topic. This allows the script to send messages to the gazebo simulation to move the robot.
+
+Compile and Run:
+
+To compile this package put the reinforcement_learning folder in the src folder of a working catkin workspace and run
+the catkin_make command. The launch file in this package calls a launch file located in the stingray_sim package as well.
+With both of the necessary packages in the workspace the simulation can be run by running:
+
+roslaunch reinforcement_learning wall_follow_reinforcement_learning.launch
