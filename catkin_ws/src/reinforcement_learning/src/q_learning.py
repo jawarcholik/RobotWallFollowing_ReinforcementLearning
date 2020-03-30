@@ -26,7 +26,8 @@ Action spaces
 ACTIONS = {
     'F': [.3,0],
     'L': [.2,-math.pi/4],
-    'R': [.2,math.pi/4]
+    'R': [.2,math.pi/4],
+    'S': [0,0]
 }
 
 """
@@ -36,7 +37,7 @@ class qTable():
     def __init__(self):
         self.table = {}
 
-    def __getitem__(self,i):
+    def __getitem__(self,i): #TODO: Is This Function Ever Used?????????????????????
         if i in self.table:
             return self.table[i]
 
@@ -50,6 +51,7 @@ class qTable():
         rightWeight = 0
         tup = tuple(state)
         if tup  not in self.table:
+            #### Naeve Implementation ####
             if state[1] != 'TC':
                 forwardWeight += 10
             if state[1] == 'TC' or state[1] == 'C':
@@ -66,7 +68,8 @@ class qTable():
                 leftWeight += 10
             if state[3] == 'F' or state[3] == 'TF':
                 rightWeight += 10
-            print("New State: " + str(tup) + str(forwardWeight) + " " + str(leftWeight) + " " + str(rightWeight))
+            print("New State: " + str(tup) + " " + str(forwardWeight) + " " + str(leftWeight) + " " + str(rightWeight))
+            ########################################
             self.table[tup] = [forwardWeight, leftWeight, rightWeight]
 
         actionWeights = self.table[tup]
@@ -84,7 +87,6 @@ Enviornment Setup
 class wallFollowEnv():
     def __init__(self):
         # General variables defining the environment
-        # self.intersection = Intersection(self.lane_size)
         self.robot = tritonRobot()
 
         # Initializing
@@ -93,7 +95,7 @@ class wallFollowEnv():
 
         # Define actions
         self.actionSpace = ACTIONS
-        self.possibleActions = ['F','L','R']
+        self.possibleActions = ['F','L','R','S']
 
         self.previousStucks = 0
 
@@ -115,6 +117,7 @@ class wallFollowEnv():
         # return observation
 
     def _get_reward(self):
+        #TODO
         return 0
 
     def _get_observation(self):
@@ -124,11 +127,15 @@ class wallFollowEnv():
 
     def isStuck(self, obs):
         if obs[1] == 'TC':
+            print("Stuck")
             self.previousStucks+=1
             if self.previousStucks > 10:
+                print(self.robot.ranges)
                 return True
         if obs[1] != 'TC':
-            self.previousStucks == 0
+            if self.previousStucks != 0:
+                print("Unstuck")
+            self.previousStucks = 0
         return False
 
     def reset(self):
@@ -136,6 +143,7 @@ class wallFollowEnv():
         resetSim = rospy.ServiceProxy('/gazebo/reset_simulation', Empty)
         resetSim()
         self.current_step = -1
+        self.previousStucks = 0
         obs = self._get_observation()
         return obs
 
@@ -165,12 +173,26 @@ class tritonRobot:
         right = 9999
         left = 9999
 
-        #Getting front min distance
-        for i in range(29):
-            if self.ranges[i] < front:
-                front = self.ranges[i]
+        #Getting left min distance
+        for i in range(30):
+            if self.ranges[i] < left:
+                left = self.ranges[i]
 
         for i in range(329,359):
+            if self.ranges[i] < left:
+                left = self.ranges[i]
+
+        #Determining Discrete Distance Measure: Close, Medium, Far, etc.
+        if left <= .5:
+            self.state[0] = self.discreteDistances[1]
+        elif left > .5:
+            self.state[0] = self.discreteDistances[3]
+        else:
+            print("Error with left values")
+
+
+        #Getting front min distance
+        for i in range(60,121):
             if self.ranges[i] < front:
                 front = self.ranges[i]
 
@@ -187,24 +209,8 @@ class tritonRobot:
             print("Error with front values")
 
 
-        #Getting left min distance
-        # for i in range(29,89):
-        for i in range(269,329): #Old Right
-            if self.ranges[i] < left:
-                left = self.ranges[i]
-
-        #Determining Discrete Distance Measure: Close, Medium, Far, etc.
-        if left <= .5:
-            self.state[0] = self.discreteDistances[1]
-        elif left > .5:
-            self.state[0] = self.discreteDistances[3]
-        else:
-            print("Error with left values")
-
-
         #Getting right min distance
-        for i in range(29,89): #Old Left
-        # for i in range(269,329):
+        for i in range(150,210):
             if self.ranges[i] < right:
                 right = self.ranges[i]
 
@@ -218,14 +224,13 @@ class tritonRobot:
         elif right <= 1.2:
             self.state[3] = self.discreteDistances[3]
         elif right > 1.2:
-            self.state[3] = self.discreteDistances[4]
+            self.state[3] = self.discreteDistances[4] #####FIXME Took out TF  [4]
         else:
             print("Error with right values")
 
 
         #Getting rightFront min distance
-        # for i in range(299,329):
-        for i in range(29,59):
+        for i in range(121,150):
             if self.ranges[i] < rightFront:
                 rightFront = self.ranges[i]
 
@@ -264,6 +269,7 @@ class tritonRobot:
     Reward functions
     """
     def rewardFunction(self):
+        ## TODO: Create Reward Function
         return
 
 """
@@ -281,7 +287,7 @@ if __name__ == '__main__':
     ALPHA = .2
     GAMMA = .8
 
-    numGames = 1
+    numGames = 2
     totalRewards = np.zeros(numGames)
 
     for i in range(numGames):
@@ -294,13 +300,18 @@ if __name__ == '__main__':
 
         while not done:
             rand = np.random.random()
+            ## IS THIS SARSA OR TD??
             if rand < 1-EPS:
                 action, actionIndex = qTable.maxAction(observation, env.possibleActions)
             else:
-                actionIndex = random.randint(0,len(env.possibleActions)-1)
+                actionIndex = random.randint(0,len(env.possibleActions)-2) # The minus two will prevent Stop action from bieng chosen
                 action = env.possibleActions[actionIndex]
 
-            print("This is the action: " + action)
+            # #Always Go Forward
+            # actionIndex = 0
+            # action = env.possibleActions[actionIndex]
+
+            # print("This is the action: " + action)
             observation_, reward, done, info = env.step(action)
 
             action_, actionIndex_ = qTable.maxAction(observation_, env.possibleActions)
@@ -311,6 +322,10 @@ if __name__ == '__main__':
 
             observation = observation_
 
+        #Stop the Robot
+        env.step(env.possibleActions[3])
+        print("Next Episode")
+        time.sleep(2)
 
 
 
