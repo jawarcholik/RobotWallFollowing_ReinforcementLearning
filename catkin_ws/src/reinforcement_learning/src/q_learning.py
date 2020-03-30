@@ -94,6 +94,7 @@ class wallFollowEnv():
         # Initializing
         self.current_step = -1
         self.current_episode = -1
+        self.good_policy_step = 0
 
         # Define actions
         self.actionSpace = ACTIONS
@@ -112,7 +113,7 @@ class wallFollowEnv():
         self.robot.step(action)
         self.current_step += 1
         observation = self._get_observation()
-        done = self.isStuck(observation)
+        done = self._isDone(observation)
         reward = self._get_reward()
         info = {}
         return observation, reward, done, info
@@ -126,7 +127,24 @@ class wallFollowEnv():
         obs = self.robot.get_observation()
         return obs
 
+    def _isDone(self, obs):
+        if self.isStuck(obs):
+            return True
+        if self.current_step >= 10000:
+            return True
+        if self.good_policy_step >= 1000:
+            return True
+
+        return False
+
     def isStuck(self, obs):
+        # Is the Step Good
+        if obs[1] not in ['TC','C'] and obs[3] == 'M':
+            self.good_policy_step += 1
+        else:
+            self.good_policy_step = 0
+
+        # Is the Robot Stuck
         if obs[1] == 'TC':
             # print("Stuck")
             self.previousStucks+=1
@@ -134,7 +152,7 @@ class wallFollowEnv():
                 # print(self.robot.ranges)
                 return True
         if obs[1] != 'TC':
-            if self.previousStucks != 0:
+            # if self.previousStucks != 0:
                 # print("Unstuck")
             self.previousStucks = 0
         return False
@@ -145,6 +163,8 @@ class wallFollowEnv():
         resetSim()
         self.current_step = -1
         self.previousStucks = 0
+        self.good_policy_step = 0
+        self.current_episode += 1
         obs = self._get_observation()
         return obs
 
@@ -339,8 +359,9 @@ if __name__ == '__main__':
             totalRewards = np.zeros(numGames)
 
             for i in range(numGames):
-                if i % 100 == 1:
+                if i % 5 == 0:
                     print('starting game', i)
+                    env.current_episode = i
 
                 eps = EPS*(DECAY**i)
                 done = False
