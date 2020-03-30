@@ -54,23 +54,23 @@ class qTable():
         tup = tuple(state)
         if tup  not in self.table:
             #### Naeve Implementation ####
-            if state[1] != 'TC':
-                forwardWeight += 10
-            if state[1] == 'TC' or state[1] == 'C':
-                forwardWeight -= 5
-            if state[1] == 'M':
-                leftWeight += 10
-            if state[0] != 'C':
-                leftWeight += 5
-            if state[2] == 'C':
-                leftWeight += 5
-                rightWeight -= 5
-                forwardWeight -= 2
-            if state[3] == 'TC':
-                leftWeight += 10
-            if state[3] == 'F' or state[3] == 'TF':
-                rightWeight += 10
-            print("New State: " + str(tup) + " " + str(forwardWeight) + " " + str(leftWeight) + " " + str(rightWeight))
+            # if state[1] != 'TC':
+            #     forwardWeight += 10
+            # if state[1] == 'TC' or state[1] == 'C':
+            #     forwardWeight -= 5
+            # if state[1] == 'M':
+            #     leftWeight += 10
+            # if state[0] != 'C':
+            #     leftWeight += 5
+            # if state[2] == 'C':
+            #     leftWeight += 5
+            #     rightWeight -= 5
+            #     forwardWeight -= 2
+            # if state[3] == 'TC':
+            #     leftWeight += 10
+            # if state[3] == 'F' or state[3] == 'TF':
+            #     rightWeight += 10
+            # print("New State: " + str(tup) + " " + str(forwardWeight) + " " + str(leftWeight) + " " + str(rightWeight))
             ########################################
             self.table[tup] = [forwardWeight, leftWeight, rightWeight]
 
@@ -128,14 +128,14 @@ class wallFollowEnv():
 
     def isStuck(self, obs):
         if obs[1] == 'TC':
-            print("Stuck")
+            # print("Stuck")
             self.previousStucks+=1
             if self.previousStucks > 10:
                 # print(self.robot.ranges)
                 return True
         if obs[1] != 'TC':
             if self.previousStucks != 0:
-                print("Unstuck")
+                # print("Unstuck")
             self.previousStucks = 0
         return False
 
@@ -330,17 +330,19 @@ if __name__ == '__main__':
             env = wallFollowEnv()
             qTable = qTable()
 
-            EPS = .1
+            EPS = .9
             ALPHA = .2
             GAMMA = .8
+            DECAY = .985
 
-            numGames = 1
+            numGames = 100
             totalRewards = np.zeros(numGames)
 
             for i in range(numGames):
                 if i % 100 == 1:
                     print('starting game', i)
 
+                eps = EPS*(DECAY**i)
                 done = False
                 epRewards = 0
                 observation = env.reset()
@@ -348,15 +350,15 @@ if __name__ == '__main__':
                 while not done:
                     rand = np.random.random()
                     ## IS THIS SARSA OR TD??
-                    # if rand < 1-EPS:
-                    #     action, actionIndex = qTable.maxAction(observation, env.possibleActions)
-                    # else:
-                    #     actionIndex = random.randint(0,len(env.possibleActions)-2) # The minus two will prevent Stop action from bieng chosen
-                    #     action = env.possibleActions[actionIndex]
+                    if rand < eps:
+                        action, actionIndex = qTable.maxAction(observation, env.possibleActions)
+                    else:
+                        actionIndex = random.randint(0,len(env.possibleActions)-2) # The minus two will prevent Stop action from bieng chosen
+                        action = env.possibleActions[actionIndex]
 
-                    #Always Go Forward
-                    actionIndex = 0
-                    action = env.possibleActions[actionIndex]
+                    # #Always Go Forward
+                    # actionIndex = 0
+                    # action = env.possibleActions[actionIndex]
 
                     # print("This is the action: " + action)
                     observation_, reward, done, info = env.step(action)
@@ -371,13 +373,13 @@ if __name__ == '__main__':
 
                 #Stop the Robot
                 env.step(env.possibleActions[3])
-                print("Next Episode")
+                # print("Next Episode")
                 time.sleep(2)
 
-            print(qTable.table)
-            cleanTable = stringify_keys(qTable.table)
-            print(cleanTable)
             #Save the QTable Training
+            # print(qTable.table)
+            cleanTable = stringify_keys(qTable.table)
+            # print(cleanTable)
             with open('qTable.json', 'w') as fp:
                 json.dump(cleanTable, fp)
 
@@ -385,7 +387,7 @@ if __name__ == '__main__':
             print("Already Trained")
             with open('qTable.json', 'r') as fp:
                 data = json.load(fp)
-            print(data)
+            print(data) #####THE KEYS ARE CHANGED TO UNICODE STRINGS INSTEAD OF SETS MAY CAUSE A PROBLEM#####
         else:
             print("There is a mistake")
 
