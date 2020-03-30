@@ -9,6 +9,7 @@ import math
 import numpy as np
 import random
 import time
+import json
 
 """
 State Space
@@ -35,7 +36,8 @@ Q-Table
 """
 class qTable():
     def __init__(self):
-        self.table = {}
+        # print("NEW QTABLE")
+        self.table = dict()
 
     def __getitem__(self,i): #TODO: Is This Function Ever Used?????????????????????
         if i in self.table:
@@ -117,8 +119,7 @@ class wallFollowEnv():
         # return observation
 
     def _get_reward(self):
-        #TODO
-        return 0
+        return self.robot.rewardFunction()
 
     def _get_observation(self):
         # print("GET OBSERVATION")
@@ -130,7 +131,7 @@ class wallFollowEnv():
             print("Stuck")
             self.previousStucks+=1
             if self.previousStucks > 10:
-                print(self.robot.ranges)
+                # print(self.robot.ranges)
                 return True
         if obs[1] != 'TC':
             if self.previousStucks != 0:
@@ -270,7 +271,50 @@ class tritonRobot:
     """
     def rewardFunction(self):
         ## TODO: Create Reward Function
-        return
+        left = self.state[0]
+        front = self.state[1]
+        rightFront = self.state[2]
+        right = self.state[3]
+
+        reward = 0
+
+        # Basic reward Function
+        if right == "TC" or right == "TF" or front == "TC" or left == "C":
+            reward = -1
+
+        return reward
+
+"""
+Training simulation
+"""
+# def train():
+
+"""
+Dictionary Cleaner
+"""
+def stringify_keys(d):
+    """Convert a dict's keys to strings if they are not."""
+    for key in d.keys():
+
+        # check inner dict
+        if isinstance(d[key], dict):
+            value = stringify_keys(d[key])
+        else:
+            value = d[key]
+
+        # convert nonstring to string if needed
+        if not isinstance(key, str):
+            try:
+                d[str(key)] = value
+            except Exception:
+                try:
+                    d[repr(key)] = value
+                except Exception:
+                    raise
+
+            # delete old key
+            del d[key]
+    return d
 
 """
 Main
@@ -279,83 +323,99 @@ if __name__ == '__main__':
     time.sleep(2)
     print("Opening Gazebo")
     time.sleep(5)
-    print("Beginning Simulation")
-    env = wallFollowEnv()
-    qTable = qTable()
+    while True:
+        mode = input("To train enter 0 if model is trained enter 1: ")
+        if mode == 0:
+            print("Beginning Training Simulation")
+            env = wallFollowEnv()
+            qTable = qTable()
 
-    EPS = .1
-    ALPHA = .2
-    GAMMA = .8
+            EPS = .1
+            ALPHA = .2
+            GAMMA = .8
 
-    numGames = 2
-    totalRewards = np.zeros(numGames)
+            numGames = 1
+            totalRewards = np.zeros(numGames)
 
-    for i in range(numGames):
-        if i % 100 == 1:
-            print('starting game', i)
+            for i in range(numGames):
+                if i % 100 == 1:
+                    print('starting game', i)
 
-        done = False
-        epRewards = 0
-        observation = env.reset()
+                done = False
+                epRewards = 0
+                observation = env.reset()
 
-        while not done:
-            rand = np.random.random()
-            ## IS THIS SARSA OR TD??
-            if rand < 1-EPS:
-                action, actionIndex = qTable.maxAction(observation, env.possibleActions)
-            else:
-                actionIndex = random.randint(0,len(env.possibleActions)-2) # The minus two will prevent Stop action from bieng chosen
-                action = env.possibleActions[actionIndex]
+                while not done:
+                    rand = np.random.random()
+                    ## IS THIS SARSA OR TD??
+                    # if rand < 1-EPS:
+                    #     action, actionIndex = qTable.maxAction(observation, env.possibleActions)
+                    # else:
+                    #     actionIndex = random.randint(0,len(env.possibleActions)-2) # The minus two will prevent Stop action from bieng chosen
+                    #     action = env.possibleActions[actionIndex]
 
-            # #Always Go Forward
-            # actionIndex = 0
-            # action = env.possibleActions[actionIndex]
+                    #Always Go Forward
+                    actionIndex = 0
+                    action = env.possibleActions[actionIndex]
 
-            # print("This is the action: " + action)
-            observation_, reward, done, info = env.step(action)
+                    # print("This is the action: " + action)
+                    observation_, reward, done, info = env.step(action)
 
-            action_, actionIndex_ = qTable.maxAction(observation_, env.possibleActions)
+                    action_, actionIndex_ = qTable.maxAction(observation_, env.possibleActions)
 
-            #### Update Q Value in Deliverable 2 ####
-            qTable[tuple(observation)][actionIndex] = qTable[tuple(observation)][actionIndex] + ALPHA*(reward + \
-                    GAMMA*qTable[tuple(observation_)][actionIndex_] - qTable[tuple(observation)][actionIndex])
+                    #Update Function
+                    qTable[tuple(observation)][actionIndex] = qTable[tuple(observation)][actionIndex] + ALPHA*(reward + \
+                            GAMMA*qTable[tuple(observation_)][actionIndex_] - qTable[tuple(observation)][actionIndex])
 
-            observation = observation_
+                    observation = observation_
 
-        #Stop the Robot
-        env.step(env.possibleActions[3])
-        print("Next Episode")
-        time.sleep(2)
+                #Stop the Robot
+                env.step(env.possibleActions[3])
+                print("Next Episode")
+                time.sleep(2)
+
+            print(qTable.table)
+            cleanTable = stringify_keys(qTable.table)
+            print(cleanTable)
+            #Save the QTable Training
+            with open('qTable.json', 'w') as fp:
+                json.dump(cleanTable, fp)
+
+        if mode == 1:
+            print("Already Trained")
+            with open('qTable.json', 'r') as fp:
+                data = json.load(fp)
+            print(data)
+        else:
+            print("There is a mistake")
 
 
+"""
+The agent makes a decision in the environment
 
+Parameters
+----------
+action_state: int - Represents which light configuration the agent took
 
-        """
-        The agent makes a decision in the environment
-
-        Parameters
-        ----------
-        action_state: int - Represents which light configuration the agent took
-
-        Returns
-        -------
-        ob, reward, episode_over, info : tuple
-            ob (object) :
-                an environment-specific object representing your observation of
-                the environment.
-            reward (float) :
-                amount of reward achieved by the previous action. The scale
-                varies between environments, but the goal is always to increase
-                your total reward.
-            episode_over (bool) :
-                whether it's time to reset the environment again. Most (but not
-                all) tasks are divided up into well-defined episodes, and done
-                being True indicates the episode has terminated. (For example,
-                perhaps the pole tipped too far, or you lost your last life.)
-            info (dict) :
-                 diagnostic information useful for debugging. It can sometimes
-                 be useful for learning (for example, it might contain the raw
-                 probabilities behind the environment's last state change).
-                 However, official evaluations of your agent are not allowed to
-                 use this for learning.
-        """
+Returns
+-------
+ob, reward, episode_over, info : tuple
+    ob (object) :
+        an environment-specific object representing your observation of
+        the environment.
+    reward (float) :
+        amount of reward achieved by the previous action. The scale
+        varies between environments, but the goal is always to increase
+        your total reward.
+    episode_over (bool) :
+        whether it's time to reset the environment again. Most (but not
+        all) tasks are divided up into well-defined episodes, and done
+        being True indicates the episode has terminated. (For example,
+        perhaps the pole tipped too far, or you lost your last life.)
+    info (dict) :
+         diagnostic information useful for debugging. It can sometimes
+         be useful for learning (for example, it might contain the raw
+         probabilities behind the environment's last state change).
+         However, official evaluations of your agent are not allowed to
+         use this for learning.
+"""
