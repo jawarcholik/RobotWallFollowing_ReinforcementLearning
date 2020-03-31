@@ -72,6 +72,24 @@ class qTable():
             #     rightWeight += 10
             # print("New State: " + str(tup) + " " + str(forwardWeight) + " " + str(leftWeight) + " " + str(rightWeight))
             ########################################
+
+            ### Less Naeve ###
+            if state[1] not in ['TC', 'C'] and state[3] not in ['TF','TC']:
+                forwardWeight += 10
+                if state[3] == 'M':
+                    forwardWeight += 5
+            if state[0] != 'C':
+                leftWeight += 5
+            if state[2] == 'C':
+                leftWeight += 5
+                rightWeight -= 5
+                forwardWeight -= 2
+            if state[3] in ['F', 'TF']:
+                rightWeight += 10
+                if state[3] == 'TF':
+                    rightWeight += 5
+                    leftWeight -= 5
+            ##################
             self.table[tup] = [forwardWeight, leftWeight, rightWeight]
 
         actionWeights = self.table[tup]
@@ -299,8 +317,11 @@ class tritonRobot:
         reward = 0
 
         # Basic reward Function
-        if right == "TC" or right == "TF" or front == "TC" or left == "C":
+        if right in ['TF', 'TC'] or front == 'TC' or left == 'C':
             reward = -1
+        if right == 'M' and front not in ['TC', 'C']:
+            reward = 1
+
 
         return reward
 
