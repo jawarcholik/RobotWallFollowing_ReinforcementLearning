@@ -10,6 +10,8 @@ import numpy as np
 import random
 import time
 import json
+import matplotlib.pyplot as plt
+
 
 """
 State Space
@@ -26,8 +28,8 @@ Action spaces
 """
 ACTIONS = {
     'F': [.3,0],
-    'L': [.2,math.pi/4],
-    'R': [.2,-math.pi/4],
+    'L': [.3,math.pi/4],
+    'R': [.3,-math.pi/4],
     'S': [0,0]
 }
 
@@ -38,6 +40,9 @@ class qTable():
     def __init__(self):
         # print("NEW QTABLE")
         self.table = dict()
+
+        # Test that table is updating
+        self.initialTable = dict()
 
     def __getitem__(self,i): #TODO: Is This Function Ever Used?????????????????????
         if i in self.table:
@@ -74,26 +79,27 @@ class qTable():
             ########################################
 
             ### Less Naeve ###
-            if state[1] not in ['TC', 'C'] and state[3] not in ['TF','TC']:
-                forwardWeight += 10
-                if state[3] == 'M':
-                    forwardWeight += 5
-            if state[0] == 'C':
-                leftWeight -= 5
-            if state[2] == 'C':
-                leftWeight += 5
-                rightWeight -= 5
-                forwardWeight -= 2
-            if state[3] in ['F', 'TF']:
-                # rightWeight += 5
-                if state[3] == 'TF':
-                    leftWeight -= 5
+            # if state[1] not in ['TC', 'C'] and state[3] not in ['TF','TC']:
+            #     forwardWeight += 10
+            #     if state[3] == 'M':
+            #         forwardWeight += 5
+            # if state[0] == 'C':
+            #     leftWeight -= 5
+            # if state[2] == 'C':
+            #     leftWeight += 5
+            #     rightWeight -= 5
+            #     forwardWeight -= 2
+            # if state[3] in ['F', 'TF']:
+            #     # rightWeight += 5
+            #     if state[3] == 'TF':
+            #         leftWeight -= 5
             ##################
             self.table[tup] = [forwardWeight, leftWeight, rightWeight]
+            self.initialTable[tup] = [forwardWeight, leftWeight, rightWeight]
 
         actionWeights = self.table[tup]
         indexMax = -1
-        maxWeight = -9999
+        maxWeight = -99999999999
         for i in range(len(actionWeights)):
             if actionWeights[i] > maxWeight:
                 indexMax = i
@@ -117,14 +123,16 @@ class wallFollowEnv():
         self.actionSpace = ACTIONS
         self.possibleActions = ['F','L','R','S']
 
-        self.previousStucks = 0
-
-        # Define observations
-        # self.observation_space = spaces.Discrete(self.num_lanes ** (self.lane_size + 1))
+        self.previousStuckFront = 0
+        self.previousStuckLeft = 0
+        self.previousStuckRight = 0
 
         # Store memory of the agents actions
         # These will be the state change the agent made during one runthrough of the algorithm
         self.action_episode_memory = []
+        # self.initial_q_table = dict()
+        # self.final_q_table = dict()
+        self.state_episode_memory = []
 
     def _step_env(self, action=0):
         self.robot.step(action)
@@ -132,7 +140,12 @@ class wallFollowEnv():
         observation = self._get_observation()
         done = self._isDone(observation)
         reward = self._get_reward()
+
         info = {}
+        #Test info
+        self.action_episode_memory.append(action)
+        self.state_episode_memory.append(observation)
+
         return observation, reward, done, info
         # return observation
 
@@ -167,17 +180,35 @@ class wallFollowEnv():
         else:
             self.good_policy_step = 0
 
-        # Is the Robot Stuck
+        # Is the Robot Stuck Front
         if obs[1] == 'TC':
             # print("Stuck")
-            self.previousStucks+=1
-            if self.previousStucks > 3:
+            self.previousStuckFront+=1
+            if self.previousStuckFront > 3:
                 # print(self.robot.ranges)
                 return True
         if obs[1] != 'TC':
             # if self.previousStucks != 0:
                 # print("Unstuck")
-            self.previousStucks = 0
+            self.previousStuckFront = 0
+
+        # Is the Robot Stuck Left
+        if obs[0] == 'C':
+            self.previousStuckLeft+=1
+            if self.previousStuckLeft > 3:
+                return True
+        if obs[0] != 'C':
+            self.previousStuckLeft = 0
+
+        # Is the Robot Stuck Right
+        if obs[3] == 'TC':
+            self.previousStuckRight+=1
+            if self.previousStuckRight > 3:
+                return True
+        if obs[3] != 'TC':
+            self.previousStuckRight = 0
+
+
         return False
 
     def reset(self):
@@ -189,7 +220,7 @@ class wallFollowEnv():
         self.good_policy_step = 0
         self.current_episode += 1
         time.sleep(2)
-        obs = self._get_observation()
+        obs = self._get_observation() # This could be an issue should this be an enviornment step?
         return obs
 
 """
@@ -219,11 +250,10 @@ class tritonRobot:
         left = 9999
 
         #Getting left min distance
-        for i in range(30):
-            if self.ranges[i] < left:
-                left = self.ranges[i]
-
-        for i in range(329,359):
+        # for i in range(150,210):
+        #     if self.ranges[i] < left:
+        #         left = self.ranges[i]
+        for i in range(30,91):
             if self.ranges[i] < left:
                 left = self.ranges[i]
 
@@ -237,7 +267,10 @@ class tritonRobot:
 
 
         #Getting front min distance
-        for i in range(60,121):
+        # for i in range(60,121):
+        #     if self.ranges[i] < front:
+        #         front = self.ranges[i]
+        for i in range(-30,31):
             if self.ranges[i] < front:
                 front = self.ranges[i]
 
@@ -255,7 +288,14 @@ class tritonRobot:
 
 
         #Getting right min distance
-        for i in range(150,210):
+        # for i in range(30):
+        #     if self.ranges[i] < right:
+        #         right = self.ranges[i]
+        #
+        # for i in range(329,359):
+        #     if self.ranges[i] < right:
+        #         right = self.ranges[i]
+        for i in range(-90,-29):
             if self.ranges[i] < right:
                 right = self.ranges[i]
 
@@ -275,7 +315,10 @@ class tritonRobot:
 
 
         #Getting rightFront min distance
-        for i in range(121,150):
+        # for i in range(121,150):
+        #     if self.ranges[i] < rightFront:
+        #         rightFront = self.ranges[i]
+        for i in range(-60,-29):
             if self.ranges[i] < rightFront:
                 rightFront = self.ranges[i]
 
@@ -298,15 +341,18 @@ class tritonRobot:
         geoValues = ACTIONS[action]
 
         msg = Pose2D()
-        msg.x = 0
-        msg.y = geoValues[0]
+        msg.x = geoValues[0]
+        msg.y = 0
         msg.theta = geoValues[1]
+
+        backwardsException = 0
 
         self.pub.publish(msg)
         try:
             self.rate.sleep()
         except rospy.ROSTimeMovedBackwardsException as e:
-            pass
+            # pass
+            backwardsException += 1
             # print("Time Backwards")
 
         return
@@ -324,10 +370,22 @@ class tritonRobot:
         reward = 0
 
         # Basic reward Function
-        if right in ['TF', 'TC'] or front == 'TC' or left == 'C':
-            reward = -1
-        if right == 'M' and front not in ['TC', 'C']:
-            reward = 1
+        if right in ['TF', 'TC']:
+            reward -= 1
+        if left == 'C':
+            reward -= 5
+        if right in ['F', 'C'] or left == 'F':
+            reward += 5
+        if front == 'TC':
+            reward -= 25
+        if front == 'C':
+            reward -= 10
+        if right == 'M' and front != 'TC':
+            reward += 20
+        if rightFront == 'C':
+            reward -= 2
+        # elif right == 'M':
+            # reward += 5
 
 
         return reward
@@ -383,7 +441,7 @@ if __name__ == '__main__':
             GAMMA = .8
             DECAY = .985
 
-            numGames = 1000
+            numGames = 40
             totalRewards = np.zeros(numGames)
 
             for i in range(numGames):
@@ -412,34 +470,49 @@ if __name__ == '__main__':
 
                     # print("This is the action: " + action)
                     observation_, reward, done, info = env._step_env(action)
+                    epRewards += reward
                     epSteps += 1
 
                     action_, actionIndex_ = qTable.maxAction(observation_, env.possibleActions)
 
                     #Update Function
-                    qTable[tuple(observation)][actionIndex] = qTable[tuple(observation)][actionIndex] + ALPHA*(reward + \
-                            GAMMA*qTable[tuple(observation_)][actionIndex_] - qTable[tuple(observation)][actionIndex])
+                    qTable.table[tuple(observation)][actionIndex] = qTable.table[tuple(observation)][actionIndex] + ALPHA*(reward + GAMMA*qTable.table[tuple(observation_)][actionIndex_] - qTable.table[tuple(observation)][actionIndex])
 
                     observation = observation_
-                print("Episode Steps: " + str(epSteps))
+                # print("Episode Steps: " + str(epSteps))
 
-                #Stop the Robot
-                # env.robot.step(env.possibleActions[3])
+                # Stop the Robot
+                env.robot.step(env.possibleActions[3])
+                totalRewards[i] = epRewards
                 # print("Next Episode")
 
 
             #Save the QTable Training
-            # print(qTable.table)
-            cleanTable = stringify_keys(qTable.table)
-            # print(cleanTable)
-            with open('qTable.json', 'w') as fp:
-                json.dump(cleanTable, fp)
+            cleanFinalTable = stringify_keys(qTable.table)
+            # cleanInitialTable = stringify_keys(qTable.initialTable)
 
+            with open('/home/jawarcholik/Stingray-Simulation/catkin_ws/src/reinforcement_learning/src/qFtable.txt', 'w') as fp:
+                json.dump(cleanFinalTable, fp)
+            # with open('/home/jawarcholik/Stingray-Simulation/catkin_ws/src/reinforcement_learning/src/qITable.txt', 'w') as fp:
+            #     json.dump(cleanInitialTable, fp)
+            # with open('/home/jawarcholik/Stingray-Simulation/catkin_ws/src/reinforcement_learning/src/ActionInfo.txt', 'w') as fp:
+            #     json.dump(env.action_episode_memory, fp)
+            # with open('/home/jawarcholik/Stingray-Simulation/catkin_ws/src/reinforcement_learning/src/StateInfo.txt', 'w') as fp:
+            #     json.dump(env.state_episode_memory, fp)
+
+            # Plot the Episode epRewards
+            plt.plot(totalRewards)
+            plt.ylabel('Episode Rewards')
+            plt.show()
+
+
+            break
         if mode == 1:
             print("Already Trained")
-            with open('qTable.json', 'r') as fp:
+            with open('qFTable.txt', 'r') as fp:
                 data = json.load(fp)
             print(data) #####THE KEYS ARE CHANGED TO UNICODE STRINGS INSTEAD OF SETS MAY CAUSE A PROBLEM#####
+            break
         else:
             print("There is a mistake")
 
