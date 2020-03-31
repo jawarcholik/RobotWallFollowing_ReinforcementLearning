@@ -26,8 +26,8 @@ Action spaces
 """
 ACTIONS = {
     'F': [.3,0],
-    'L': [.2,-math.pi/4],
-    'R': [.2,math.pi/4],
+    'L': [.2,math.pi/4],
+    'R': [.2,-math.pi/4],
     'S': [0,0]
 }
 
@@ -78,16 +78,15 @@ class qTable():
                 forwardWeight += 10
                 if state[3] == 'M':
                     forwardWeight += 5
-            if state[0] != 'C':
-                leftWeight += 5
+            if state[0] == 'C':
+                leftWeight -= 5
             if state[2] == 'C':
                 leftWeight += 5
                 rightWeight -= 5
                 forwardWeight -= 2
             if state[3] in ['F', 'TF']:
-                rightWeight += 10
+                # rightWeight += 5
                 if state[3] == 'TF':
-                    rightWeight += 5
                     leftWeight -= 5
             ##################
             self.table[tup] = [forwardWeight, leftWeight, rightWeight]
@@ -127,7 +126,7 @@ class wallFollowEnv():
         # These will be the state change the agent made during one runthrough of the algorithm
         self.action_episode_memory = []
 
-    def step(self, action=0):
+    def _step_env(self, action=0):
         self.robot.step(action)
         self.current_step += 1
         observation = self._get_observation()
@@ -147,10 +146,16 @@ class wallFollowEnv():
 
     def _isDone(self, obs):
         if self.isStuck(obs):
+            print("Stuck")
+            if self.current_step < 10:
+                print(obs)
+                print(self.previousStucks)
             return True
         if self.current_step >= 10000:
+            print("Full Episode")
             return True
         if self.good_policy_step >= 1000:
+            print("Followed Wall Success")
             return True
 
         return False
@@ -166,7 +171,7 @@ class wallFollowEnv():
         if obs[1] == 'TC':
             # print("Stuck")
             self.previousStucks+=1
-            if self.previousStucks > 10:
+            if self.previousStucks > 3:
                 # print(self.robot.ranges)
                 return True
         if obs[1] != 'TC':
@@ -176,13 +181,14 @@ class wallFollowEnv():
         return False
 
     def reset(self):
-        rospy.wait_for_service('/gazebo/reset_simulation')
-        resetSim = rospy.ServiceProxy('/gazebo/reset_simulation', Empty)
+        rospy.wait_for_service('/gazebo/reset_world')
+        resetSim = rospy.ServiceProxy('/gazebo/reset_world', Empty)
         resetSim()
         self.current_step = -1
         self.previousStucks = 0
         self.good_policy_step = 0
         self.current_episode += 1
+        time.sleep(2)
         obs = self._get_observation()
         return obs
 
@@ -300,7 +306,8 @@ class tritonRobot:
         try:
             self.rate.sleep()
         except rospy.ROSTimeMovedBackwardsException as e:
-            print("Time Backwards")
+            pass
+            # print("Time Backwards")
 
         return
 
@@ -376,17 +383,18 @@ if __name__ == '__main__':
             GAMMA = .8
             DECAY = .985
 
-            numGames = 100
+            numGames = 1000
             totalRewards = np.zeros(numGames)
 
             for i in range(numGames):
+                env.current_episode = i
                 if i % 5 == 0:
                     print('starting game', i)
-                    env.current_episode = i
 
                 eps = EPS*(DECAY**i)
                 done = False
                 epRewards = 0
+                epSteps = 0
                 observation = env.reset()
 
                 while not done:
@@ -399,11 +407,12 @@ if __name__ == '__main__':
                         action = env.possibleActions[actionIndex]
 
                     # #Always Go Forward
-                    # actionIndex = 0
+                    # actionIndex = 2
                     # action = env.possibleActions[actionIndex]
 
                     # print("This is the action: " + action)
-                    observation_, reward, done, info = env.step(action)
+                    observation_, reward, done, info = env._step_env(action)
+                    epSteps += 1
 
                     action_, actionIndex_ = qTable.maxAction(observation_, env.possibleActions)
 
@@ -412,11 +421,12 @@ if __name__ == '__main__':
                             GAMMA*qTable[tuple(observation_)][actionIndex_] - qTable[tuple(observation)][actionIndex])
 
                     observation = observation_
+                print("Episode Steps: " + str(epSteps))
 
                 #Stop the Robot
-                env.step(env.possibleActions[3])
+                # env.robot.step(env.possibleActions[3])
                 # print("Next Episode")
-                time.sleep(2)
+
 
             #Save the QTable Training
             # print(qTable.table)
