@@ -8,6 +8,7 @@ from geometry_msgs.msg import Pose2D
 from gazebo_msgs.msg import ModelState
 from gazebo_msgs.srv import SetModelState
 from gazebo_msgs.srv import GetModelState
+from tf.transformations import quaternion_from_euler
 import math
 import numpy as np
 import random
@@ -176,7 +177,8 @@ class wallFollowEnv():
     def _isDone(self, obs):
         if self.isStuck(obs):
             print("Stuck")
-            # if self.current_step < 10:
+            if self.current_step < 5:
+                print("Short Episode")
             #     print(obs)
             #     print('Front Stuck: ', self.previousStuckFront)
             #     print('Right Stuck: ', self.previousStuckRight)
@@ -234,6 +236,14 @@ class wallFollowEnv():
         spawn.model_name = 'triton_lidar'
         spawn.pose.position.x = random.randint(-4,3) + .5
         spawn.pose.position.y = random.randint(-4,3) + .5
+
+        #Set a random orientation
+        orient = quaternion_from_euler(0,0,np.deg2rad(random.randint(0,360)))
+        spawn.pose.orientation.x = orient[0]
+        spawn.pose.orientation.y = orient[1]
+        spawn.pose.orientation.z = orient[2]
+        spawn.pose.orientation.w = orient[3]
+
         setPosition(spawn)
 
         self.current_step = -1
