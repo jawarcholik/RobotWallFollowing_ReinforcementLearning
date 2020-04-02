@@ -30,10 +30,23 @@ State Space
 """
 Action spaces
 """
+# ACTIONS = {
+#     'F': [.2,0],
+#     'L': [.2,math.pi/4],
+#     'R': [.2,-math.pi/4],
+#     'S': [0,0]
+# }
+
 ACTIONS = {
+    'HL': [.2,np.deg2rad(40)],
+    'ML': [.2,np.deg2rad(20)],
+    'L': [.2,np.deg2rad(10)],
+    'SL': [.2,np.deg2rad(.3)],
     'F': [.2,0],
-    'L': [.2,math.pi/4],
-    'R': [.2,-math.pi/4],
+    'SR': [.2,np.deg2rad(-.3)],
+    'R': [.2,np.deg2rad(-10)],
+    'MR': [.2,np.deg2rad(-20)],
+    'HR': [.2,np.deg2rad(-40)],
     'S': [0,0]
 }
 
@@ -46,7 +59,7 @@ class qTable():
         self.table = dict()
 
         # Test that table is updating
-        self.initialTable = dict()
+        # self.initialTable = dict()
 
     def __getitem__(self,i): #TODO: Is This Function Ever Used?????????????????????
         if i in self.table:
@@ -57,10 +70,30 @@ class qTable():
         return self.table[i]
 
     def maxAction(self, state, actions):
-        forwardWeight = 0
-        leftWeight = 0
-        rightWeight = 0
+        # forwardWeight = 0
+        # leftWeight = 0
+        # rightWeight = 0
+
+        hardLeft = 0
+        mediumLeft = 0
+        normLeft = 0
+        slightLeft = 0
+        forward = 0
+        slightRight = 0
+        normRight = 0
+        mediumRight = 0
+        hardRight = 0
+
         tup = tuple(state)
+
+        leftBack = state[0]
+        left = state[1]
+        leftFront = state[2]
+        front = state[3]
+        rightFront = state[4]
+        right = state[5]
+        rightBack = state[6]
+        orientation = state[7]
 
         if tup not in self.table:
             #### Naeve Implementation ####
@@ -104,8 +137,57 @@ class qTable():
             #     leftWeight += 1
             ##################
 
-            self.table[tup] = [forwardWeight, leftWeight, rightWeight]
-            self.initialTable[tup] = [forwardWeight, leftWeight, rightWeight]
+            ### Latest Attempt ###
+            if front in ['M','C','TC']:
+                forward -= 10
+                if left in ['C','TC']:
+                    hardRight += 5
+                    mediumRight += 4
+                    normRight += 3
+                    slightRight += 2
+                else:
+                    hardLeft += 5
+                    mediumLeft += 4
+                    normLeft += 3
+                    slightLeft += 2
+            if left in ['C','TC','TTC']:
+                hardRight += 5
+                mediumRight += 4
+                normRight += 3
+                slightRight += 2
+                hardLeft -= 5
+                mediumLeft -= 4
+                normLeft -= 3
+                slightLeft -= 2
+            if right in ['TC','TTC']:
+                hardLeft += 5
+                mediumLeft += 4
+                normLeft += 3
+                slightLeft += 2
+                hardRight -= 5
+                mediumRight -= 4
+                normRight -= 3
+                slightRight -= 2
+            if rightBack in ['C','M'] and (right not in ['C','M'] or rightFront not in ['C','M']):
+                hardRight += 10
+                mediumRight += 8
+                normRight += 4
+                slightRight += 2
+            if leftFront in ['TTC', 'C'] and rightFront not in ['TTC','C']:
+                hardRight += 5
+                mediumRight += 4
+                normRight += 3
+                slightRight += 2
+            if rightFront in ['TTC', 'C'] and leftFront not in ['TTC','C']:
+                hardLeft += 5
+                mediumLeft += 4
+                normLeft += 3
+                slightLeft += 2
+
+            # self.table[tup] = [forwardWeight, leftWeight, rightWeight]
+            # self.initialTable[tup] = [forwardWeight, leftWeight, rightWeight]
+
+            self.table[tup] = [hardLeft, mediumLeft, normLeft, slightLeft, forward, slightRight, normRight, mediumRight, hardRight]
 
         actionWeights = self.table[tup]
         indexMax = -1
@@ -131,7 +213,8 @@ class wallFollowEnv():
 
         # Define actions
         self.actionSpace = ACTIONS
-        self.possibleActions = ['F','L','R','S']
+        # self.possibleActions = ['F','L','R','S']
+        self.possibleActions = ['HL','ML','L','SL','F','SR','R','MR','HR','S']
 
         self.previousStucks = 0
         # self.previousStuckFront = 0
@@ -150,12 +233,14 @@ class wallFollowEnv():
 
         self.previousPosition = ModelState()
 
+        random.seed()
+
     def _step_env(self, action='S'):
         self.robot.step(action)
         self.current_step += 1
         observation = self._get_observation()
         done = self._isDone(observation)
-        reward = self._get_reward()
+        reward = self._get_reward(done)
 
         info = {}
         #Test info
@@ -166,8 +251,8 @@ class wallFollowEnv():
         return observation, reward, done, info
         # return observation
 
-    def _get_reward(self):
-        return self.robot.rewardFunction()
+    def _get_reward(self, done):
+        return self.robot.rewardFunction(done)
 
     def _get_observation(self):
         # print("GET OBSERVATION")
@@ -176,7 +261,7 @@ class wallFollowEnv():
 
     def _isDone(self, obs):
         if self.isStuck(obs):
-            print("Stuck")
+            # print("Stuck")
             if self.current_step < 5:
                 print("Short Episode")
             #     print(obs)
@@ -236,13 +321,15 @@ class wallFollowEnv():
         spawn.model_name = 'triton_lidar'
         spawn.pose.position.x = random.randint(-4,3) + .5
         spawn.pose.position.y = random.randint(-4,3) + .5
+        # spawn.pose.position.x = -1.5
+        # spawn.pose.position.y = -.5
 
-        #Set a random orientation
-        orient = quaternion_from_euler(0,0,np.deg2rad(random.randint(0,360)))
-        spawn.pose.orientation.x = orient[0]
-        spawn.pose.orientation.y = orient[1]
-        spawn.pose.orientation.z = orient[2]
-        spawn.pose.orientation.w = orient[3]
+        # # Set a random orientation
+        # orient = quaternion_from_euler(0,0,np.deg2rad(random.randint(0,360)))
+        # spawn.pose.orientation.x = orient[0]
+        # spawn.pose.orientation.y = orient[1]
+        # spawn.pose.orientation.z = orient[2]
+        # spawn.pose.orientation.w = orient[3]
 
         setPosition(spawn)
 
@@ -273,8 +360,9 @@ class tritonRobot:
         self.rate = rospy.Rate(10)
         self.ranges = []
         self.previousRanges = []
-        self.state = ['','','','','']
-        self.previousState = ['','','','','']
+        self.state = ['','','','','','','','']
+        self.previousState = ['','','','','','','','']
+        self.twoStatesAgo = ['','','','','','','','']
         self.discreteDistances = ['TTC','TC','C','M','F','TF']
         self.discreteOrientations = ['U','P','A','MA'] # Undefined, Parallel, Approaching, Moving Away
 
@@ -291,94 +379,225 @@ class tritonRobot:
         front = 9999
         rightFront = 9999
         right = 9999
+        rightBack = 9999
+        leftFront = 9999
         left = 9999
+        leftBack = 9999
+
+        elemCount = 0
+
+        totalLeftBack = 0
+        totalLeft = 0
+        totalLeftFront = 0
+        totalFront = 0
+        totalRightFront = 0
+        totalRight = 0
+        totalRightBack = 0
+
+
+        elemCount = 0
+        #Getting leftBack min distance
+        for i in range(120,171):
+            # if self.ranges[i] < leftBack:
+            #     leftBack = self.ranges[i]
+
+            # Average Distance
+            totalLeftBack += self.ranges[i]
+            elemCount += 1
+
+        leftBack = totalLeftBack/elemCount
+
+        #Determining Discrete Distance Measure: Close, Medium, Far, etc.
+        if leftBack <= .25:
+            self.state[0] = self.discreteDistances[0]
+        elif leftBack <= .9:
+            self.state[0] = self.discreteDistances[2]
+        elif leftBack > .9:
+            self.state[0] = self.discreteDistances[4]
+        else:
+            print("Error with leftBack values")
+
 
         #Getting left min distance
         for i in range(60,121):
-            if self.ranges[i] < left:
-                left = self.ranges[i]
+            # Closest Distance
+            # if self.ranges[i] < left:
+            #     left = self.ranges[i]
+
+            # Average Distance
+            totalLeft += self.ranges[i]
+            elemCount += 1
+
+        left = totalLeft/elemCount
 
         #Determining Discrete Distance Measure: Close, Medium, Far, etc.
-        if left <= .25:
-            self.state[0] = self.discreteDistances[0]
-        elif left <= .5:
-            self.state[0] = self.discreteDistances[2]
-        elif left > .5:
-            self.state[0] = self.discreteDistances[4]
+        if left <= .2:
+            self.state[1] = self.discreteDistances[0]
+        elif left <= .4:
+            self.state[1] = self.discreteDistances[1]
+        elif left <= .6:
+            self.state[1] = self.discreteDistances[2]
+        elif left <= .8:
+            self.state[1] = self.discreteDistances[3]
+        elif left > .8:
+            self.state[1] = self.discreteDistances[4]
         else:
             print("Error with left values")
 
 
+        elemCount = 0
+        #Getting leftFront min distance
+        for i in range(21,60):
+            # if self.ranges[i] < leftFront:
+            #     leftFront = self.ranges[i]
+
+            # Average Distance
+            totalLeftFront += self.ranges[i]
+            elemCount += 1
+
+        leftFront = totalLeftFront/elemCount
+
+        #Determining Discrete Distance Measure: Close, Medium, Far, etc.
+        if leftFront <= .25:
+            self.state[2] = self.discreteDistances[0]
+        elif leftFront <= .9:
+            self.state[2] = self.discreteDistances[2]
+        elif leftFront > .9:
+            self.state[2] = self.discreteDistances[4]
+        else:
+            print("Error with leftFront values")
+
+
+        elemCount = 0
         #Getting front min distance
         for i in range(-30,31):
-            if self.ranges[i] < front:
-                front = self.ranges[i]
+            # if self.ranges[i] < front:
+            #     front = self.ranges[i]
+
+            # Average Distance
+            totalFront += self.ranges[i]
+            elemCount += 1
+
+        front = totalFront/elemCount
 
         #Determining Discrete Distance Measure: Close, Medium, Far, etc.
         if front <= .25:
-            self.state[1] = self.discreteDistances[0]
+            self.state[3] = self.discreteDistances[0]
         elif front < .5:
-            self.state[1] = self.discreteDistances[1]
+            self.state[3] = self.discreteDistances[1]
         elif front < .6:
-            self.state[1] = self.discreteDistances[2]
-        elif front <= 1.2:
-            self.state[1] = self.discreteDistances[3]
-        elif front > 1.2:
-            self.state[1] = self.discreteDistances[4]
+            self.state[3] = self.discreteDistances[2]
+        elif front <= 1.0:
+            self.state[3] = self.discreteDistances[3]
+        elif front > 1.0:
+            self.state[3] = self.discreteDistances[4]
         else:
             print("Error with front values")
 
 
-        #Getting right min distance
-        for i in range(-120,-59):
-            if self.ranges[i] < right:
-                right = self.ranges[i]
+        elemCount = 0
+        #Getting rightFront min distance
+        for i in range(-60,-20):
+            # if self.ranges[i] < rightFront:
+            #     rightFront = self.ranges[i]
+
+            # Average Distance
+            totalRightFront += self.ranges[i]
+            elemCount += 1
+
+        rightFront = totalRightFront/elemCount
 
         #Determining Discrete Distance Measure: Close, Medium, Far, etc.
-        if right <= .25:
-            self.state[3] = self.discreteDistances[0]
-        elif right < .5:
-            self.state[3] = self.discreteDistances[1]
-        elif right < .6:
-            self.state[3] = self.discreteDistances[2]
-        elif right <= .8:
-            self.state[3] = self.discreteDistances[3]
-        elif right <= 1.2:
-            self.state[3] = self.discreteDistances[4]
-        elif right > 1.2:
-            self.state[3] = self.discreteDistances[5] #####FIXME Took out TF  [4]
+        if rightFront <= .25:
+            self.state[4] = self.discreteDistances[0]
+        elif rightFront <= .9:
+            self.state[4] = self.discreteDistances[2]
+        elif rightFront > .9:
+            self.state[4] = self.discreteDistances[4]
+        else:
+            print("Error with rightFront values")
+
+
+
+        elemCount = 0
+        #Getting right min distance
+        for i in range(-120,-59):
+            # if self.ranges[i] < right:
+            #     right = self.ranges[i]
+
+            # Average Distance
+            totalRight += self.ranges[i]
+            elemCount += 1
+
+        right = totalRight/elemCount
+
+        #Determining Discrete Distance Measure: Close, Medium, Far, etc.
+        if right <= .2:
+            self.state[5] = self.discreteDistances[0]
+        elif right < .3:
+            self.state[5] = self.discreteDistances[1]
+        elif right < .4:
+            self.state[5] = self.discreteDistances[2]
+        elif right <= .6:
+            self.state[5] = self.discreteDistances[3]
+        elif right <= .9:
+            self.state[5] = self.discreteDistances[4]
+        elif right > .9:
+            self.state[5] = self.discreteDistances[5] #####FIXME Took out TF  [4]
         else:
             print("Error with right values")
 
 
-        #Getting rightFront min distance
-        for i in range(-60,-29):
-            if self.ranges[i] < rightFront:
-                rightFront = self.ranges[i]
+        elemCount = 0
+        #Getting rightBack min distance
+        for i in range(-170,-119):
+            # if self.ranges[i] < rightBack:
+            #     rightBack = self.ranges[i]
+
+            # Average Distance
+            totalRightBack += self.ranges[i]
+            elemCount += 1
+
+        rightBack = totalRightBack/elemCount
 
         #Determining Discrete Distance Measure: Close, Medium, Far, etc.
-        if rightFront <= .25:
-            self.state[2] = self.discreteDistances[0]
-        elif rightFront <= 1.2:
-            self.state[2] = self.discreteDistances[2]
-        elif rightFront > 1.2:
-            self.state[2] = self.discreteDistances[4]
+        if rightBack <= .25:
+            self.state[6] = self.discreteDistances[0]
+        elif rightBack <= .9:
+            self.state[6] = self.discreteDistances[2]
+        elif rightBack > .9:
+            self.state[6] = self.discreteDistances[4]
         else:
-            print("Error with rightFront values")
+            print("Error with rightBack values")
+
+
+
 
         #Determine the Orientation
-        if len(self.previousRanges) == 0 or (self.state[3] == 'TF' and self.previousState[3] == 'TF'):
-            self.state[4] = self.discreteOrientations[0]
-        elif self.state[3] == self.previousState[3]:
-            self.state[4] = self.discreteOrientations[1]
+        if len(self.previousRanges) == 0 or (self.state[5] == 'TF' and self.previousState[5] == 'TF'):
+            self.state[7] = self.discreteOrientations[0]
+        elif self.state[5] == self.previousState[5]:
+            if self.state[5] == self.twoStatesAgo[5]:
+                self.state[7] = self.discreteOrientations[1]
+            else:
+                self.state[7] = self.discreteOrientations[0]
         else:
-            if self.state[3] in ['TF','F'] and self.previousState[3] in ['F','M','C']:
-                self.state[4] = self.discreteOrientations[3]
-            elif self.state[3] in ['C','TC'] and self.previousState[3] in ['F','M','C']:
-                self.state[4] = self.discreteOrientations[2]
+            if self.state[5] in ['TF','F'] and self.previousState[5] in ['F','M','C']:
+                self.state[7] = self.discreteOrientations[3]
+            elif self.state[5] in ['C','TC','TTC'] and self.previousState[5] in ['F','M','C']:
+                self.state[7] = self.discreteOrientations[2]
+
+        # # Test Sensor Ranges
+        # if self.state[0] in ['C','TC']:
+        #     print("Left")
+        # if self.state[1] in ['C','TC']:
+        #     print("Front")
+        # if self.state[3] in ['C','TC']:
+        #     print("Right")
 
 
         self.previousRanges = self.ranges
+        self.twoStatesAgo = self.previousState
         self.previousState = self.state
 
     def get_observation(self):
@@ -403,7 +622,7 @@ class tritonRobot:
 
         msg = Pose2D()
         msg.x = geoValues[0]
-        msg.y = 0
+        msg.y = 0 #geoValues[0]
         msg.theta = geoValues[1]
 
         backwardsException = 0
@@ -422,16 +641,20 @@ class tritonRobot:
     """
     Reward functions
     """
-    def rewardFunction(self):
+    def rewardFunction(self, isDone):
         ## TODO: Create Reward Function
-        left = self.state[0]
-        front = self.state[1]
-        rightFront = self.state[2]
-        right = self.state[3]
-        orientation = self.state[4]
+        leftBack = self.state[0]
+        left = self.state[1]
+        leftFront = self.state[2]
+        front = self.state[3]
+        rightFront = self.state[4]
+        right = self.state[5]
+        rightBack = self.state[6]
+        orientation = self.state[7]
 
         reward = 0
 
+        previousRight = ''
         # Basic reward Function
         # if right in ['TF', 'TC']:
         #     reward -= 1
@@ -454,12 +677,61 @@ class tritonRobot:
             # reward += 5
 
         #### New Attempt ####
-        if left == 'C' or front == 'TC' or right in ['TC','TF']:
-            reward = -1
-        if right in ['C','M','F'] and front != 'TC':
-            reward = 1
-        if right in ['C','M','F'] and front != 'TC':
-            reward += .5
+        if left in ['TTC','TC','C']:
+            # print('Left Bad Reward')
+            if left == 'C':
+                reward -= 1
+            else:
+                reward -= 3
+        if front in ['TTC','TC','C']:
+            # print('Front Bad Reward')
+            reward -= 5
+        if right in ['TF','TTC']:
+            reward -= 5
+            if right == 'TF':
+                # print('Right Really Bad Reward')
+                reward -= 5
+            else:
+                # print('Right Bad Reward')
+                pass
+        if right in ['C','M','F'] and front not in ['TTC','TC']:
+            # print('Positive')
+            reward += 2
+            if front not in ['TTC','TC','C','M']:
+                reward += 1
+                if right == 'M' and orientation == 'P':
+                    # print('Best Reward')
+                    reward += 2
+                else:
+                    # print('Great Reward')
+                    pass
+            elif front not in ['TTC','TC','C']:
+                # print('Good Reward')
+                reward += 2
+
+
+        # if right in ['C','M','F'] and front != 'TC':
+        #     reward += .5
+        if isDone:
+            # print('Died Reward')
+            reward -= 10
+        else:
+            # print('Alive Reward')
+            reward += 1
+
+        if previousRight == 'M' and right == 'M':
+            reward += 2
+            if front in ['F','TF']:
+                reward += 3
+            elif front in ['TTC','TC','C']:
+                reward -= 5
+        elif previousRight in ['F','C'] and right == 'M':
+            reward += 2
+        elif previousRight == 'M' and right in ['F', 'C']:
+            reward -= 3
+
+        if previousRight == 'M' and right in ['F','TF'] and front not in ['TCC','TC','C','M']:
+            reward -= 10
 
         return reward
 
@@ -530,16 +802,17 @@ if __name__ == '__main__':
 
                 while not done:
                     rand = np.random.random()
-                    ## IS THIS SARSA OR TD??
-                    if rand < eps:
+
+                    if rand > eps:
                         action, actionIndex = qTable.maxAction(observation, env.possibleActions)
                     else:
                         actionIndex = random.randint(0,len(env.possibleActions)-2) # The minus two will prevent Stop action from bieng chosen
                         action = env.possibleActions[actionIndex]
 
                     # #Always Go Forward
-                    # actionIndex = 2
+                    # actionIndex = len(env.possibleActions)-1
                     # action = env.possibleActions[actionIndex]
+                    # print(observation)
 
                     # print("This is the action: " + action)
                     observation_, reward, done, info = env._step_env(action)
@@ -563,7 +836,7 @@ if __name__ == '__main__':
                 # print("Episode Steps: " + str(epSteps))
 
                 # Stop the Robot
-                env.robot.step(env.possibleActions[3])
+                env.robot.step(env.possibleActions[len(env.possibleActions)-1])
                 totalRewards[i] = epRewards
                 # print("Next Episode")
 
@@ -572,7 +845,7 @@ if __name__ == '__main__':
             cleanFinalTable = stringify_keys(qTable.table)
             # cleanInitialTable = stringify_keys(qTable.initialTable)
 
-            with open('/home/jawarcholik/Stingray-Simulation/catkin_ws/src/reinforcement_learning/src/qFtable.txt', 'w') as fp:
+            with open('/home/jawarcholik/Stingray-Simulation/catkin_ws/src/reinforcement_learning/src/qNewtable.txt', 'w') as fp:
                 json.dump(cleanFinalTable, fp)
             # with open('/home/jawarcholik/Stingray-Simulation/catkin_ws/src/reinforcement_learning/src/qITable.txt', 'w') as fp:
             #     json.dump(cleanInitialTable, fp)
@@ -590,9 +863,25 @@ if __name__ == '__main__':
             break
         if mode == 1:
             print("Already Trained")
-            with open('qFTable.txt', 'r') as fp:
+            filepath = raw_input("Enter filepath to the QTable File you would like to use: ")
+            with open(filepath, 'r') as fp:
                 data = json.load(fp)
-            print(data) #####THE KEYS ARE CHANGED TO UNICODE STRINGS INSTEAD OF SETS MAY CAUSE A PROBLEM#####
+            # print(data) #####THE KEYS ARE CHANGED TO UNICODE STRINGS INSTEAD OF SETS MAY CAUSE A PROBLEM#####
+
+            env = wallFollowEnv()
+            qTable = qTable()
+
+            observation = env.reset()
+
+            done = False
+
+            while not done:
+                action, actionIndex = qTable.maxAction(observation, env.possibleActions)
+
+                observation_, reward, done, info = env._step_env(action)
+
+                observation = observation_
+
             break
         else:
             print("There is a mistake")

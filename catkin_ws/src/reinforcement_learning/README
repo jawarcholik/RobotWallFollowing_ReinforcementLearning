@@ -15,3 +15,11 @@ the catkin_make command. The launch file in this package calls a launch file loc
 With both of the necessary packages in the workspace the simulation can be run by running:
 
 roslaunch reinforcement_learning wall_follow_reinforcement_learning.launch
+
+Once Gazebo opens the user is prompted with an option to train by inputting 0 or to test by inputting 1. If the user chooses
+to train then the triton_lidar robot will begin a TD reinforcement learning algorithm for 150 episodes. The terminal will
+show the start of every 5th episode. Once the training is complete the user will be prompted again if they would like to train
+or test. The test option will spawn the robot at a random location at which point it will attempt to follow the first right hand wall it
+finds.
+
+The reward function on this model proved difficult define well enough to train the robot.
