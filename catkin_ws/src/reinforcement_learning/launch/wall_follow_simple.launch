@@ -1,0 +1,4 @@
+<launch>
+  <include file="$(find stingray_sim)/launch/wall_following_v1.launch"/>
+  <node pkg="reinforcement_learning" name="q_simple" type="q_simple.py" output="screen"/>
+</launch>
