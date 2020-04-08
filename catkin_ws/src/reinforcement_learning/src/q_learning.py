@@ -30,25 +30,25 @@ State Space
 """
 Action spaces
 """
-# ACTIONS = {
-#     'F': [.2,0],
-#     'L': [.2,math.pi/4],
-#     'R': [.2,-math.pi/4],
-#     'S': [0,0]
-# }
-
 ACTIONS = {
-    'HL': [.2,np.deg2rad(40)],
-    'ML': [.2,np.deg2rad(20)],
-    'L': [.2,np.deg2rad(10)],
-    'SL': [.2,np.deg2rad(.3)],
     'F': [.2,0],
-    'SR': [.2,np.deg2rad(-.3)],
-    'R': [.2,np.deg2rad(-10)],
-    'MR': [.2,np.deg2rad(-20)],
-    'HR': [.2,np.deg2rad(-40)],
+    'L': [.2,math.pi/4],
+    'R': [.2,-math.pi/4],
     'S': [0,0]
 }
+
+# ACTIONS = {
+#     'HL': [.2,np.deg2rad(40)],
+#     'ML': [.2,np.deg2rad(20)],
+#     'L': [.2,np.deg2rad(10)],
+#     'SL': [.2,np.deg2rad(.3)],
+#     'F': [.2,0],
+#     'SR': [.2,np.deg2rad(-.3)],
+#     'R': [.2,np.deg2rad(-10)],
+#     'MR': [.2,np.deg2rad(-20)],
+#     'HR': [.2,np.deg2rad(-40)],
+#     'S': [0,0]
+# }
 
 """
 Q-Table
@@ -70,30 +70,30 @@ class qTable():
         return self.table[i]
 
     def maxAction(self, state, actions):
-        # forwardWeight = 0
-        # leftWeight = 0
-        # rightWeight = 0
+        forwardWeight = 0
+        leftWeight = 0
+        rightWeight = 0
 
-        hardLeft = 0
-        mediumLeft = 0
-        normLeft = 0
-        slightLeft = 0
-        forward = 0
-        slightRight = 0
-        normRight = 0
-        mediumRight = 0
-        hardRight = 0
+        # hardLeft = 0
+        # mediumLeft = 0
+        # normLeft = 0
+        # slightLeft = 0
+        # forward = 0
+        # slightRight = 0
+        # normRight = 0
+        # mediumRight = 0
+        # hardRight = 0
 
         tup = tuple(state)
 
-        leftBack = state[0]
-        left = state[1]
-        leftFront = state[2]
-        front = state[3]
-        rightFront = state[4]
-        right = state[5]
-        rightBack = state[6]
-        orientation = state[7]
+        # leftBack = state[0]
+        left = state[0]
+        # leftFront = state[2]
+        front = state[1]
+        rightFront = state[2]
+        right = state[3]
+        # rightBack = state[6]
+        orientation = state[4]
 
         if tup not in self.table:
             #### Naeve Implementation ####
@@ -117,77 +117,77 @@ class qTable():
             ########################################
 
             ### Less Naeve ###
-            # if state[1] not in ['TC', 'C'] and state[3] not in ['TF','TC']:
-            #     forwardWeight += 5
-            #     if state[3] == 'M':
-            #         forwardWeight += 5
-            # if state[0] == 'C':
-            #     leftWeight -= 1
-            #     rightWeight += 1
-            # if state[2] == 'C':
-            #     leftWeight += 3
-            #     rightWeight -= 3
-            #     forwardWeight -= 2
-            # if state[3] in ['F', 'TF']:
-            #     rightWeight += 1
-            #     # if state[3] == 'TF':
-            #         # leftWeight -= 2
-            # if state[4] in ['U']:
-            #     forwardWeight += 3
-            #     leftWeight += 1
+            if state[1] not in ['TC', 'C'] and state[3] not in ['TF','TC']:
+                forwardWeight += 5
+                if state[3] == 'M':
+                    forwardWeight += 5
+            if state[0] == 'C':
+                leftWeight -= 1
+                rightWeight += 1
+            if state[2] == 'C':
+                leftWeight += 3
+                rightWeight -= 3
+                forwardWeight -= 2
+            if state[3] in ['F', 'TF']:
+                rightWeight += 1
+                # if state[3] == 'TF':
+                    # leftWeight -= 2
+            if state[4] in ['U']:
+                forwardWeight += 3
+                leftWeight += 1
             ##################
 
             ### Latest Attempt ###
-            if front in ['M','C','TC']:
-                forward -= 10
-                if left in ['C','TC']:
-                    hardRight += 5
-                    mediumRight += 4
-                    normRight += 3
-                    slightRight += 2
-                else:
-                    hardLeft += 5
-                    mediumLeft += 4
-                    normLeft += 3
-                    slightLeft += 2
-            if left in ['C','TC','TTC']:
-                hardRight += 5
-                mediumRight += 4
-                normRight += 3
-                slightRight += 2
-                hardLeft -= 5
-                mediumLeft -= 4
-                normLeft -= 3
-                slightLeft -= 2
-            if right in ['TC','TTC']:
-                hardLeft += 5
-                mediumLeft += 4
-                normLeft += 3
-                slightLeft += 2
-                hardRight -= 5
-                mediumRight -= 4
-                normRight -= 3
-                slightRight -= 2
-            if rightBack in ['C','M'] and (right not in ['C','M'] or rightFront not in ['C','M']):
-                hardRight += 10
-                mediumRight += 8
-                normRight += 4
-                slightRight += 2
-            if leftFront in ['TTC', 'C'] and rightFront not in ['TTC','C']:
-                hardRight += 5
-                mediumRight += 4
-                normRight += 3
-                slightRight += 2
-            if rightFront in ['TTC', 'C'] and leftFront not in ['TTC','C']:
-                hardLeft += 5
-                mediumLeft += 4
-                normLeft += 3
-                slightLeft += 2
+            # if front in ['M','C','TC']:
+            #     forward -= 10
+            #     if left in ['C','TC']:
+            #         hardRight += 5
+            #         mediumRight += 4
+            #         normRight += 3
+            #         slightRight += 2
+            #     else:
+            #         hardLeft += 5
+            #         mediumLeft += 4
+            #         normLeft += 3
+            #         slightLeft += 2
+            # if left in ['C','TC','TTC']:
+            #     hardRight += 5
+            #     mediumRight += 4
+            #     normRight += 3
+            #     slightRight += 2
+            #     hardLeft -= 5
+            #     mediumLeft -= 4
+            #     normLeft -= 3
+            #     slightLeft -= 2
+            # if right in ['TC','TTC']:
+            #     hardLeft += 5
+            #     mediumLeft += 4
+            #     normLeft += 3
+            #     slightLeft += 2
+            #     hardRight -= 5
+            #     mediumRight -= 4
+            #     normRight -= 3
+            #     slightRight -= 2
+            # if rightBack in ['C','M'] and (right not in ['C','M'] or rightFront not in ['C','M']):
+            #     hardRight += 10
+            #     mediumRight += 8
+            #     normRight += 4
+            #     slightRight += 2
+            # if leftFront in ['TTC', 'C'] and rightFront not in ['TTC','C']:
+            #     hardRight += 5
+            #     mediumRight += 4
+            #     normRight += 3
+            #     slightRight += 2
+            # if rightFront in ['TTC', 'C'] and leftFront not in ['TTC','C']:
+            #     hardLeft += 5
+            #     mediumLeft += 4
+            #     normLeft += 3
+            #     slightLeft += 2
 
-            # self.table[tup] = [forwardWeight, leftWeight, rightWeight]
+            self.table[tup] = [forwardWeight, leftWeight, rightWeight]
             # self.initialTable[tup] = [forwardWeight, leftWeight, rightWeight]
 
-            self.table[tup] = [hardLeft, mediumLeft, normLeft, slightLeft, forward, slightRight, normRight, mediumRight, hardRight]
+            # self.table[tup] = [hardLeft, mediumLeft, normLeft, slightLeft, forward, slightRight, normRight, mediumRight, hardRight]
 
         actionWeights = self.table[tup]
         indexMax = -1
@@ -213,8 +213,8 @@ class wallFollowEnv():
 
         # Define actions
         self.actionSpace = ACTIONS
-        # self.possibleActions = ['F','L','R','S']
-        self.possibleActions = ['HL','ML','L','SL','F','SR','R','MR','HR','S']
+        self.possibleActions = ['F','L','R','S']
+        # self.possibleActions = ['HL','ML','L','SL','F','SR','R','MR','HR','S']
 
         self.previousStucks = 0
         # self.previousStuckFront = 0
@@ -360,9 +360,14 @@ class tritonRobot:
         self.rate = rospy.Rate(10)
         self.ranges = []
         self.previousRanges = []
-        self.state = ['','','','','','','','']
-        self.previousState = ['','','','','','','','']
-        self.twoStatesAgo = ['','','','','','','','']
+        # self.state = ['','','','','','','','']
+        # self.previousState = ['','','','','','','','']
+        # self.twoStatesAgo = ['','','','','','','','']
+
+        self.state = ['','','','','']
+        self.previousState = ['','','','','']
+        self.twoStatesAgo = ['','','','','']
+
         self.discreteDistances = ['TTC','TC','C','M','F','TF']
         self.discreteOrientations = ['U','P','A','MA'] # Undefined, Parallel, Approaching, Moving Away
 
@@ -395,27 +400,27 @@ class tritonRobot:
         totalRightBack = 0
 
 
-        elemCount = 0
-        #Getting leftBack min distance
-        for i in range(120,171):
-            # if self.ranges[i] < leftBack:
-            #     leftBack = self.ranges[i]
-
-            # Average Distance
-            totalLeftBack += self.ranges[i]
-            elemCount += 1
-
-        leftBack = totalLeftBack/elemCount
-
-        #Determining Discrete Distance Measure: Close, Medium, Far, etc.
-        if leftBack <= .25:
-            self.state[0] = self.discreteDistances[0]
-        elif leftBack <= .9:
-            self.state[0] = self.discreteDistances[2]
-        elif leftBack > .9:
-            self.state[0] = self.discreteDistances[4]
-        else:
-            print("Error with leftBack values")
+        # elemCount = 0
+        # #Getting leftBack min distance
+        # for i in range(120,171):
+        #     # if self.ranges[i] < leftBack:
+        #     #     leftBack = self.ranges[i]
+        #
+        #     # Average Distance
+        #     totalLeftBack += self.ranges[i]
+        #     elemCount += 1
+        #
+        # leftBack = totalLeftBack/elemCount
+        #
+        # #Determining Discrete Distance Measure: Close, Medium, Far, etc.
+        # if leftBack <= .25:
+        #     self.state[0] = self.discreteDistances[0]
+        # elif leftBack <= .9:
+        #     self.state[0] = self.discreteDistances[2]
+        # elif leftBack > .9:
+        #     self.state[0] = self.discreteDistances[4]
+        # else:
+        #     print("Error with leftBack values")
 
 
         #Getting left min distance
@@ -432,40 +437,40 @@ class tritonRobot:
 
         #Determining Discrete Distance Measure: Close, Medium, Far, etc.
         if left <= .2:
-            self.state[1] = self.discreteDistances[0]
-        elif left <= .4:
-            self.state[1] = self.discreteDistances[1]
-        elif left <= .6:
-            self.state[1] = self.discreteDistances[2]
-        elif left <= .8:
-            self.state[1] = self.discreteDistances[3]
-        elif left > .8:
-            self.state[1] = self.discreteDistances[4]
+            self.state[0] = self.discreteDistances[0]
+        elif left <= .5:
+            self.state[0] = self.discreteDistances[1]
+        elif left <= .7:
+            self.state[0] = self.discreteDistances[2]
+        elif left <= 1.2:
+            self.state[0] = self.discreteDistances[3]
+        elif left > 1.2:
+            self.state[0] = self.discreteDistances[4]
         else:
             print("Error with left values")
 
 
-        elemCount = 0
-        #Getting leftFront min distance
-        for i in range(21,60):
-            # if self.ranges[i] < leftFront:
-            #     leftFront = self.ranges[i]
-
-            # Average Distance
-            totalLeftFront += self.ranges[i]
-            elemCount += 1
-
-        leftFront = totalLeftFront/elemCount
-
-        #Determining Discrete Distance Measure: Close, Medium, Far, etc.
-        if leftFront <= .25:
-            self.state[2] = self.discreteDistances[0]
-        elif leftFront <= .9:
-            self.state[2] = self.discreteDistances[2]
-        elif leftFront > .9:
-            self.state[2] = self.discreteDistances[4]
-        else:
-            print("Error with leftFront values")
+        # elemCount = 0
+        # #Getting leftFront min distance
+        # for i in range(21,60):
+        #     # if self.ranges[i] < leftFront:
+        #     #     leftFront = self.ranges[i]
+        #
+        #     # Average Distance
+        #     totalLeftFront += self.ranges[i]
+        #     elemCount += 1
+        #
+        # leftFront = totalLeftFront/elemCount
+        #
+        # #Determining Discrete Distance Measure: Close, Medium, Far, etc.
+        # if leftFront <= .25:
+        #     self.state[2] = self.discreteDistances[0]
+        # elif leftFront <= 1.2:
+        #     self.state[2] = self.discreteDistances[2]
+        # elif leftFront > 1.2:
+        #     self.state[2] = self.discreteDistances[4]
+        # else:
+        #     print("Error with leftFront values")
 
 
         elemCount = 0
@@ -482,15 +487,15 @@ class tritonRobot:
 
         #Determining Discrete Distance Measure: Close, Medium, Far, etc.
         if front <= .25:
-            self.state[3] = self.discreteDistances[0]
-        elif front < .5:
-            self.state[3] = self.discreteDistances[1]
+            self.state[1] = self.discreteDistances[0]
         elif front < .6:
-            self.state[3] = self.discreteDistances[2]
+            self.state[1] = self.discreteDistances[1]
+        elif front < .8:
+            self.state[1] = self.discreteDistances[2]
         elif front <= 1.0:
-            self.state[3] = self.discreteDistances[3]
+            self.state[1] = self.discreteDistances[3]
         elif front > 1.0:
-            self.state[3] = self.discreteDistances[4]
+            self.state[1] = self.discreteDistances[4]
         else:
             print("Error with front values")
 
@@ -509,11 +514,11 @@ class tritonRobot:
 
         #Determining Discrete Distance Measure: Close, Medium, Far, etc.
         if rightFront <= .25:
-            self.state[4] = self.discreteDistances[0]
-        elif rightFront <= .9:
-            self.state[4] = self.discreteDistances[2]
-        elif rightFront > .9:
-            self.state[4] = self.discreteDistances[4]
+            self.state[2] = self.discreteDistances[0]
+        elif rightFront <= 1.2:
+            self.state[2] = self.discreteDistances[2]
+        elif rightFront > 1.2:
+            self.state[2] = self.discreteDistances[4]
         else:
             print("Error with rightFront values")
 
@@ -533,59 +538,59 @@ class tritonRobot:
 
         #Determining Discrete Distance Measure: Close, Medium, Far, etc.
         if right <= .2:
-            self.state[5] = self.discreteDistances[0]
+            self.state[3] = self.discreteDistances[0]
         elif right < .3:
-            self.state[5] = self.discreteDistances[1]
-        elif right < .4:
-            self.state[5] = self.discreteDistances[2]
-        elif right <= .6:
-            self.state[5] = self.discreteDistances[3]
+            self.state[3] = self.discreteDistances[1]
+        elif right < .5:
+            self.state[3] = self.discreteDistances[2]
+        elif right <= .7:
+            self.state[3] = self.discreteDistances[3]
         elif right <= .9:
-            self.state[5] = self.discreteDistances[4]
+            self.state[3] = self.discreteDistances[4]
         elif right > .9:
-            self.state[5] = self.discreteDistances[5] #####FIXME Took out TF  [4]
+            self.state[3] = self.discreteDistances[5] #####FIXME Took out TF  [4]
         else:
             print("Error with right values")
 
 
-        elemCount = 0
-        #Getting rightBack min distance
-        for i in range(-170,-119):
-            # if self.ranges[i] < rightBack:
-            #     rightBack = self.ranges[i]
-
-            # Average Distance
-            totalRightBack += self.ranges[i]
-            elemCount += 1
-
-        rightBack = totalRightBack/elemCount
-
-        #Determining Discrete Distance Measure: Close, Medium, Far, etc.
-        if rightBack <= .25:
-            self.state[6] = self.discreteDistances[0]
-        elif rightBack <= .9:
-            self.state[6] = self.discreteDistances[2]
-        elif rightBack > .9:
-            self.state[6] = self.discreteDistances[4]
-        else:
-            print("Error with rightBack values")
+        # elemCount = 0
+        # #Getting rightBack min distance
+        # for i in range(-170,-119):
+        #     # if self.ranges[i] < rightBack:
+        #     #     rightBack = self.ranges[i]
+        #
+        #     # Average Distance
+        #     totalRightBack += self.ranges[i]
+        #     elemCount += 1
+        #
+        # rightBack = totalRightBack/elemCount
+        #
+        # #Determining Discrete Distance Measure: Close, Medium, Far, etc.
+        # if rightBack <= .25:
+        #     self.state[6] = self.discreteDistances[0]
+        # elif rightBack <= 1.2:
+        #     self.state[6] = self.discreteDistances[2]
+        # elif rightBack > 1.2:
+        #     self.state[6] = self.discreteDistances[4]
+        # else:
+        #     print("Error with rightBack values")
 
 
 
 
         #Determine the Orientation
-        if len(self.previousRanges) == 0 or (self.state[5] == 'TF' and self.previousState[5] == 'TF'):
-            self.state[7] = self.discreteOrientations[0]
-        elif self.state[5] == self.previousState[5]:
-            if self.state[5] == self.twoStatesAgo[5]:
-                self.state[7] = self.discreteOrientations[1]
+        if len(self.previousRanges) == 0 or (self.state[1] == 'TF' and self.previousState[1] == 'TF'):
+            self.state[4] = self.discreteOrientations[0]
+        elif self.state[1] == self.previousState[1]:
+            if self.state[1] == self.twoStatesAgo[1]:
+                self.state[4] = self.discreteOrientations[1]
             else:
-                self.state[7] = self.discreteOrientations[0]
+                self.state[4] = self.discreteOrientations[0]
         else:
-            if self.state[5] in ['TF','F'] and self.previousState[5] in ['F','M','C']:
-                self.state[7] = self.discreteOrientations[3]
-            elif self.state[5] in ['C','TC','TTC'] and self.previousState[5] in ['F','M','C']:
-                self.state[7] = self.discreteOrientations[2]
+            if self.state[1] in ['TF','F'] and self.previousState[1] in ['F','M','C']:
+                self.state[4] = self.discreteOrientations[3]
+            elif self.state[1] in ['C','TC','TTC'] and self.previousState[1] in ['F','M','C']:
+                self.state[4] = self.discreteOrientations[2]
 
         # # Test Sensor Ranges
         # if self.state[0] in ['C','TC']:
@@ -643,14 +648,23 @@ class tritonRobot:
     """
     def rewardFunction(self, isDone):
         ## TODO: Create Reward Function
-        leftBack = self.state[0]
-        left = self.state[1]
-        leftFront = self.state[2]
-        front = self.state[3]
-        rightFront = self.state[4]
-        right = self.state[5]
-        rightBack = self.state[6]
-        orientation = self.state[7]
+        # leftBack = self.state[0]
+        # left = self.state[1]
+        # leftFront = self.state[2]
+        # front = self.state[3]
+        # rightFront = self.state[4]
+        # right = self.state[5]
+        # rightBack = self.state[6]
+        # orientation = self.state[7]
+
+        # leftBack = self.state[0]
+        left = self.state[0]
+        # leftFront = self.state[2]
+        front = self.state[1]
+        rightFront = self.state[2]
+        right = self.state[3]
+        # rightBack = self.state[6]
+        orientation = self.state[4]
 
         reward = 0
 
@@ -677,61 +691,97 @@ class tritonRobot:
             # reward += 5
 
         #### New Attempt ####
-        if left in ['TTC','TC','C']:
-            # print('Left Bad Reward')
-            if left == 'C':
-                reward -= 1
-            else:
-                reward -= 3
-        if front in ['TTC','TC','C']:
-            # print('Front Bad Reward')
-            reward -= 5
-        if right in ['TF','TTC']:
-            reward -= 5
-            if right == 'TF':
-                # print('Right Really Bad Reward')
-                reward -= 5
-            else:
-                # print('Right Bad Reward')
-                pass
-        if right in ['C','M','F'] and front not in ['TTC','TC']:
-            # print('Positive')
+        # if left in ['TTC','TC','C']:
+        #     # print('Left Bad Reward')
+        #     if left == 'C':
+        #         reward -= 1
+        #     else:
+        #         reward -= 3
+        # if front in ['TTC','TC','C']:
+        #     # print('Front Bad Reward')
+        #     reward -= 5
+        # if right in ['TF','TTC']:
+        #     reward -= 5
+        #     if right == 'TF':
+        #         # print('Right Really Bad Reward')
+        #         reward -= 5
+        #     else:
+        #         # print('Right Bad Reward')
+        #         pass
+        # if right in ['C','M','F'] and front not in ['TTC','TC']:
+        #     # print('Positive')
+        #     reward += 2
+        #     if front not in ['TTC','TC','C','M']:
+        #         reward += 1
+        #         if right == 'M' and orientation == 'P':
+        #             # print('Best Reward')
+        #             reward += 2
+        #         else:
+        #             # print('Great Reward')
+        #             pass
+        #     elif front not in ['TTC','TC','C']:
+        #         # print('Good Reward')
+        #         reward += 2
+        #
+        #
+        # # if right in ['C','M','F'] and front != 'TC':
+        # #     reward += .5
+        # if isDone:
+        #     # print('Died Reward')
+        #     reward -= 10
+        # else:
+        #     # print('Alive Reward')
+        #     reward += 1
+        #
+        # if previousRight == 'M' and right == 'M':
+        #     reward += 2
+        #     if front in ['F','TF']:
+        #         reward += 3
+        #     elif front in ['TTC','TC','C']:
+        #         reward -= 5
+        # elif previousRight in ['F','C'] and right == 'M':
+        #     reward += 2
+        # elif previousRight == 'M' and right in ['F', 'C']:
+        #     reward -= 3
+        #
+        # if previousRight == 'M' and right in ['F','TF'] and front not in ['TCC','TC','C','M']:
+        #     reward -= 10
+
+        ########### Late Attempt ##########
+        if right in ['TTC','TC','TF'] or front in ['TTC','TC'] or left in ['TTC','TC','C']:
+            reward -= 1
+        elif right in ['C','F']:
+            # reward += 1
+            pass
+        elif right == 'M':
             reward += 2
-            if front not in ['TTC','TC','C','M']:
-                reward += 1
-                if right == 'M' and orientation == 'P':
-                    # print('Best Reward')
-                    reward += 2
-                else:
-                    # print('Great Reward')
-                    pass
-            elif front not in ['TTC','TC','C']:
-                # print('Good Reward')
-                reward += 2
 
-
-        # if right in ['C','M','F'] and front != 'TC':
-        #     reward += .5
         if isDone:
             # print('Died Reward')
-            reward -= 10
+            reward -= 5
         else:
             # print('Alive Reward')
-            reward += 1
+            reward += .5
 
-        if previousRight == 'M' and right == 'M':
-            reward += 2
-            if front in ['F','TF']:
-                reward += 3
-            elif front in ['TTC','TC','C']:
-                reward -= 5
-        elif previousRight in ['F','C'] and right == 'M':
-            reward += 2
-        elif previousRight == 'M' and right in ['F', 'C']:
-            reward -= 3
+        if right in ['TF','F']:
+            reward -= 8
+        # if right in ['TF','F'] and
 
-        if previousRight == 'M' and right in ['F','TF'] and front not in ['TCC','TC','C','M']:
-            reward -= 10
+        # if previousRight == 'M' and right == 'M':
+        #     reward += 2
+        #     if front in ['F','TF']:
+        #         reward += 1
+        #     elif front in ['TTC','TC','C']:
+        #         reward -= 5
+        # elif previousRight in ['F','C'] and right == 'M':
+        #     reward += 2
+        # elif previousRight == 'M' and right in ['F', 'C']:
+        #     reward -= 3
+        #
+        # if previousRight == 'M' and right in ['F','TF'] and front not in ['TCC','TC','C','M']:
+        #     reward -= 5
+        #
+        # previousRight = right
 
         return reward
 
@@ -845,7 +895,7 @@ if __name__ == '__main__':
             cleanFinalTable = stringify_keys(qTable.table)
             # cleanInitialTable = stringify_keys(qTable.initialTable)
 
-            with open('/home/jawarcholik/Stingray-Simulation/catkin_ws/src/reinforcement_learning/src/qNewtable.txt', 'w') as fp:
+            with open('/home/jawarcholik/Stingray-Simulation/catkin_ws/src/reinforcement_learning/src/qLateAttempttable2.txt', 'w') as fp:
                 json.dump(cleanFinalTable, fp)
             # with open('/home/jawarcholik/Stingray-Simulation/catkin_ws/src/reinforcement_learning/src/qITable.txt', 'w') as fp:
             #     json.dump(cleanInitialTable, fp)

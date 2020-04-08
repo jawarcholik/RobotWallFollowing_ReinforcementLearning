@@ -14,7 +14,7 @@ To compile this package put the reinforcement_learning folder in the src folder 
 the catkin_make command. The launch file in this package calls a launch file located in the stingray_sim package as well.
 With both of the necessary packages in the workspace the simulation can be run by running:
 
-roslaunch reinforcement_learning wall_follow_reinforcement_learning.launch
+roslaunch reinforcement_learning wall_follow_reinforcement_simple.launch
 
 Once Gazebo opens the user is prompted with an option to train by inputting 0 or to test by inputting 1. If the user chooses
 to train then the triton_lidar robot will begin a TD reinforcement learning algorithm for 150 episodes. The terminal will
@@ -22,4 +22,12 @@ show the start of every 5th episode. Once the training is complete the user will
 or test. The test option will spawn the robot at a random location at which point it will attempt to follow the first right hand wall it
 finds.
 
-The reward function on this model proved difficult define well enough to train the robot.
+Improvements:
+
+To make it more user friendly the user is now prompted at the end of the training period for the file path they would like to save the
+q-table too. In addition many changes were made to the reward function to make it simpler and more effective. The prior Knowledge
+in the predefined q-table was also adjusted. Finally, major changes were made to the orientation state variable so that it was using
+linear regression instead of comparing to past states. These improvements allowed the robot to learn three of the turning scenarios.
+
+It was still found to be difficult to get the robot to learn to turn right 90 degrees at the L corner and to turn right 180
+degrees at an I corner.
